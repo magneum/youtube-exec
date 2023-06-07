@@ -1,0 +1,54 @@
+# Files and directories to ignore when publishing to npm
+
+# Ignore development and system files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Ignore build output and bundled files
+/dist/
+/build/
+/out/
+/public/
+
+# Ignore version control files and directories
+.git/
+.gitignore
+.hg/
+.hgignore
+.svn/
+
+# Ignore configuration files
+*.config.js
+.env
+.env.local
+.env.*.local
+
+# Ignore test files and directories
+/__tests__/
+/tests/
+/*.test.js
+/*.spec.js
+
+# Ignore editor and IDE files
+.vscode/
+.idea/
+*.sublime-*
+*.sublime-workspace
+
+# Ignore documentation and build scripts
+/docs/
+/doc/
+/coverage/
+/scripts/
+
+# Ignore miscellaneous files and directories
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
