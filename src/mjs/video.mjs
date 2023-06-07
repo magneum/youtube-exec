@@ -13,14 +13,14 @@ const plogger = progLogger();
 const log = (message) => {
   logger.info(message);
 };
-
 const createFolderIfNotExists = (foldername) => {
   if (!foldername) {
     foldername = "ytdl-exec";
   }
-  if (!fs.existsSync(foldername)) {
-    fs.mkdirSync(foldername);
-    logger.info(`📂 Created folder: ${foldername}`);
+  const outputFolder = path.resolve(process.cwd(), foldername);
+  if (!fs.existsSync(outputFolder)) {
+    fs.mkdirSync(outputFolder);
+    logger.info(`📂 Created folder: ${outputFolder}`);
   }
 };
 

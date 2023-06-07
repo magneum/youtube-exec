@@ -9,14 +9,14 @@ const path = require("path");
 const fs = require("fs");
 
 const plogger = progLogger();
-
 const createFolderIfNotExists = (foldername) => {
   if (!foldername) {
     foldername = "ytdl-exec";
   }
-  if (!fs.existsSync(foldername)) {
-    fs.mkdirSync(foldername);
-    logger.info(`📂 Created folder: ${foldername}`);
+  const outputFolder = path.resolve(process.cwd(), foldername);
+  if (!fs.existsSync(outputFolder)) {
+    fs.mkdirSync(outputFolder);
+    logger.info(`📂 Created folder: ${outputFolder}`);
   }
 };
 
