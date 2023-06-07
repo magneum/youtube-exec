@@ -228,17 +228,3 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
 };
 
 export default dlVideoWithAudio;
-
-// dlVideoWithAudio({
-// url: "https://youtu.be/Wgx6WvlOv_0",
-// foldername: "downloads",
-// resolution: 144,
-// })
-// .then(() => {
-// console.log("Video and audio downloaded successfully!");
-// })
-// .catch((error) => {
-// console.error("Error downloading video and audio:", error);
-// });
-
-// Can you now create a new code with the same logic but without the audio related stuffs. What i mean is i want this new code to be just the the dlAudio code but dlVideo.
