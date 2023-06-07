@@ -3,7 +3,7 @@ import { assert } from "chai";
 import clear from "cli-clear";
 import sinon from "sinon";
 import fs from "fs";
-clear()
+clear();
 
 describe("dlAudio", function () {
   let logSpy;
