@@ -17,8 +17,10 @@ const log = (message) => {
 const fetchAudioDetails = async ({ url, quality }) => {
   log("🔍 Fetching audio details...");
   try {
-    const promise = youtubedl(url, { dumpSingleJson: true });
-    const result = await plogger(promise, "📥 Obtaining...");
+    const result = await plogger(
+      youtubedl(url, { dumpSingleJson: true }),
+      "📥 Obtaining..."
+    );
     const videoTitle = result.title;
     const reqAudio = findReqAudioFormat(result.formats, quality);
     return { reqAudio, videoTitle };
@@ -28,44 +30,33 @@ const fetchAudioDetails = async ({ url, quality }) => {
 };
 
 const findReqAudioFormat = (formats, quality) => {
-  let reqAudio = null;
   log("🎧 Fetching Audio Quality: " + quality);
+  const validFormats = formats.filter(
+    (format) => format.acodec !== "none" && format.vcodec === "none"
+  );
   if (quality === "best") {
-    let highestBitrate = 0;
-    for (let i = 0; i < formats.length; i++) {
-      const format = formats[i];
-      if (format.acodec === "none" || format.vcodec !== "none") {
-        continue;
-      }
-      const bitrate = format.tbr || format.abr;
-      if (bitrate && bitrate > highestBitrate) {
-        highestBitrate = bitrate;
-        reqAudio = format;
-      }
-    }
-    return reqAudio;
+    const reqAudio = validFormats.reduce((prevFormat, currFormat) => {
+      const prevBitrate = prevFormat.tbr || prevFormat.abr || 0;
+      const currBitrate = currFormat.tbr || currFormat.abr || 0;
+      return currBitrate > prevBitrate ? currFormat : prevFormat;
+    });
+    return reqAudio || null;
   } else if (quality === "lowest") {
-    let lowBitrate = Infinity;
-    for (let i = 0; i < formats.length; i++) {
-      const format = formats[i];
-      if (format.acodec === "none" || format.vcodec !== "none") {
-        continue;
-      }
-      const bitrate = format.tbr || format.abr;
-      if (bitrate && bitrate < lowBitrate) {
-        lowBitrate = bitrate;
-        reqAudio = format;
-      }
-    }
-    return reqAudio;
-  } else throw new Error(`❌ Error: Supported Audio Quality: best, lowest`);
+    const reqAudio = validFormats.reduce((prevFormat, currFormat) => {
+      const prevBitrate = prevFormat.tbr || prevFormat.abr || Infinity;
+      const currBitrate = currFormat.tbr || currFormat.abr || Infinity;
+      return currBitrate < prevBitrate ? currFormat : prevFormat;
+    });
+    return reqAudio || null;
+  } else {
+    throw new Error(`❌ Error: Supported Audio Quality: best, lowest`);
+  }
 };
 
 const downloadAudioFile = async (ffmpegUrl, outputFile, quality, filename) => {
   outputFile = path.join(outputFile, `[${quality}]${filename}.mp3`);
   return new Promise((resolve, reject) => {
-    const ffmpegCommand = ffmpeg()
-      .input(ffmpegUrl)
+    const ffmpegCommand = ffmpeg(ffmpegUrl)
       .audioBitrate(320)
       .toFormat("ipod")
       .on("start", () => {
@@ -88,7 +79,7 @@ const downloadAudioFile = async (ffmpegUrl, outputFile, quality, filename) => {
         logger.error(`❌ Error downloading audio file: ${err.message}`);
         reject(err);
       })
-      .saveToFile(outputFile);
+      .save(outputFile);
     ffmpegCommand.run();
   });
 };
@@ -98,45 +89,23 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const displayAudioDetails = (reqAudio, videoTitle, url, debug) => {
-  if (debug) {
-    log(
-      chalk.bold(
-        chalk.bgCyanBright("Video Title:"),
-        chalk.bold(chalk.italic(chalk.white(videoTitle)))
-      )
-    );
-    Object.entries(reqAudio).forEach(([key, value]) => {
-      switch (key) {
-        case "url":
-          url = value;
-          break;
-        case "fragments":
-          log(chalk.bold(`${chalk.yellow(key)}:`));
-          value.forEach((fragment, index) => {
-            log(chalk.bold(chalk.yellow(` no ${index + 1}:`)));
-            Object.entries(fragment).forEach(([fKey, fValue]) => {
-              log(
-                `${chalk.bold(chalk.yellow(fKey))}: ${chalk.bold(
-                  chalk.italic(chalk.white(fValue))
-                )}`
-              );
-            });
-          });
-          break;
-        default:
-          log(
-            chalk.bold(
-              chalk.yellow(
-                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-              )
-            )
-          );
-          break;
-      }
+const displayAudioDetails = (reqAudio, videoTitle, url) => {
+  log(
+    `${chalk.bold(chalk.bgCyanBright("Video Title:"))} ${chalk.bold(
+      chalk.italic(chalk.white(videoTitle))
+    )}`
+  );
+  reqAudio.fragments.forEach((fragment, index) => {
+    log(chalk.bold(chalk.yellow(`Fragment no ${index + 1}:`)));
+    Object.entries(fragment).forEach(([fKey, fValue]) => {
+      log(
+        `${chalk.bold(chalk.yellow(fKey))}: ${chalk.bold(
+          chalk.italic(chalk.white(fValue))
+        )}`
+      );
     });
-  }
-  return url;
+  });
+  return reqAudio.url;
 };
 
 const createFolderIfNotExists = async (foldername) => {
@@ -150,27 +119,23 @@ const createFolderIfNotExists = async (foldername) => {
   }
 };
 
-const dlAudio = async ({ url, foldername, quality, filename, debug }) => {
+const dlAudio = async ({ url, foldername, quality, filename }) => {
   try {
     if (!validateUrl(url)) {
       throw new Error("❌ Invalid URL format.");
     }
     const { reqAudio, videoTitle } = await fetchAudioDetails({ url, quality });
     if (reqAudio) {
-      url = displayAudioDetails(reqAudio, videoTitle, url, debug);
-      if (!foldername) {
-        foldername = "ytdl-exec";
+      url = displayAudioDetails(reqAudio, videoTitle, url);
+      foldername = foldername || "ytdl-exec";
+      const folderExists = await fs
+        .access(foldername)
+        .then(() => true)
+        .catch(() => false);
+      if (!folderExists) {
         await createFolderIfNotExists(foldername);
-      } else {
-        const folderExists = await fs
-          .access(foldername)
-          .then(() => true)
-          .catch(() => false);
-        if (!folderExists) {
-          await createFolderIfNotExists(foldername);
-        }
       }
-      const outputFilename = filename || `${videoTitle}`;
+      const outputFilename = filename || videoTitle;
       await downloadAudioFile(url, foldername, quality, outputFilename);
     } else {
       log(chalk.bold(chalk.yellow("❌ No audio details found.")));
@@ -183,7 +148,8 @@ const dlAudio = async ({ url, foldername, quality, filename, debug }) => {
 
 export default dlAudio;
 
-async function realTimeTesting(options) {
+async function Testing(options, message) {
+  log(chalk.bgCyan(chalk.whiteBright(message.toUpperCase())));
   try {
     await dlAudio(options);
   } catch (error) {
@@ -191,37 +157,31 @@ async function realTimeTesting(options) {
   }
 }
 
-// Test case with valid URL, existing folder, and custom filename:
-await realTimeTesting({
-  url: "https://youtu.be/Wgx6WvlOv_0",
-  foldername: "downloads",
-  filename: "custom_filename",
-  quality: "best",
-  debug: true,
-});
+await Testing(
+  {
+    url: "https://youtu.be/Wgx6WvlOv_0",
+    foldername: "downloads",
+    filename: "custom_filename",
+    quality: "best",
+  },
+  "🛸 Test case with valid URL, existing folder, and custom filename:"
+);
 
-// Test case with valid URL, non-existing folder, and default filename:
-await realTimeTesting({
-  url: "https://youtu.be/Wgx6WvlOv_0",
-  foldername: "non_existing_folder",
-  quality: "best",
-  debug: false,
-});
+await Testing(
+  {
+    url: "https://youtu.be/Wgx6WvlOv_0",
+    foldername: "non_existing_folder",
+    quality: "best",
+  },
+  "🛸 Test case with valid URL, non-existing folder, and default filename:"
+);
 
-// Test case with invalid URL:
-await realTimeTesting({
-  url: "invalid_url",
-  foldername: "downloads",
-  filename: "magneum",
-  quality: "best",
-  debug: false,
-});
-
-// Test case with valid URL but no audio details found:
-await realTimeTesting({
-  url: "https://youtu.be/invalid_video",
-  foldername: "downloads",
-  filename: "magneum",
-  quality: "best",
-  debug: false,
-});
+await Testing(
+  {
+    url: "https://youtu.be/invalid_video",
+    foldername: "downloads",
+    filename: "magneum",
+    quality: "best",
+  },
+  "🛸 Test case with invalid URL:"
+);
