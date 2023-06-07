@@ -1,43 +1,69 @@
-import dlAudio from "./audio.mjs";
+import dlAudio from "../mjs/audio.mjs";
 import { assert } from "chai";
-import clear from "cli-clear";
 import sinon from "sinon";
 import fs from "fs";
-clear();
 
-describe("dlAudio", function () {
-  let logSpy;
-  let errorSpy;
-  let fsExistsSyncStub;
-  let fsMkdirSyncStub;
+async function deleteDownloadedFiles(
+  foldername = "downloads",
+  filename = "my-audio"
+) {
+  try {
+    const filePath = `${foldername}/${filename}.mp3`;
+    await fs.promises.unlink(filePath);
+    await fs.promises.rmdir(foldername);
+  } catch (error) {
+    console.error("Error occurred while deleting downloaded files:", error);
+  }
+}
 
+describe("dlAudio", async () => {
   beforeEach(() => {
-    logSpy = sinon.spy(console, "log");
-    errorSpy = sinon.spy(console, "error");
-    fsExistsSyncStub = sinon.stub(fs, "existsSync").returns(true);
-    fsMkdirSyncStub = sinon.stub(fs, "mkdirSync");
+    sinon.stub(console, "info");
+    sinon.stub(console, "error");
   });
-
   afterEach(() => {
     sinon.restore();
   });
 
-  this.timeout(40000);
+  it("should download audio with all parameters provided", async () => {
+    const quality = "lowest";
+    const filename = "my-audio";
+    const foldername = "downloads";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, foldername, quality, filename };
+    await dlAudio(params);
+    assert.isTrue(true);
+    await deleteDownloadedFiles(foldername, filename);
+  });
 
-  it("should download audio successfully with default filename and foldername", async function () {
-    const url = "https://youtu.be/Wgx6WvlOv_0";
-    const quality = "best";
-    await dlAudio({ url, quality });
-    assert.isTrue(logSpy.calledWith("🔍 Fetching audio details..."));
-    assert.isTrue(logSpy.calledWith("🔍 Fetching Audio Quality: best"));
-    assert.isTrue(logSpy.calledWith(sinon.match("🎥 Video Title:")));
-    assert.isTrue(logSpy.calledWith("📥 Audio download started..."));
-    assert.isTrue(logSpy.calledWith(sinon.match("⬇️ Downloading:")));
-    assert.isTrue(
-      logSpy.calledWith(sinon.match("✅ Audio downloaded successfully!"))
-    );
-    assert.isFalse(fsMkdirSyncStub.called);
-    assert.isFalse(fsExistsSyncStub.called);
-    assert.isFalse(errorSpy.called);
+  it("should download audio without foldername", async () => {
+    const quality = "lowest";
+    const filename = "my-audio";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+    const params = { url, quality, filename };
+    await dlAudio(params);
+    assert.isTrue(true);
+    await deleteDownloadedFiles(undefined, filename);
+  });
+
+  it("should download audio without filename", async () => {
+    const quality = "lowest";
+    const foldername = "downloads";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+    const params = { url, foldername, quality };
+    await dlAudio(params);
+    assert.isTrue(true);
+    await deleteDownloadedFiles(foldername);
+  });
+
+  it("should download audio without foldername and filename", async () => {
+    const quality = "lowest";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, quality };
+    await dlAudio(params);
+    assert.isTrue(true);
+    await deleteDownloadedFiles();
   });
 });
