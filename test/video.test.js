@@ -31,6 +31,15 @@ const { dlVideoWithAudio } = require("../app/cjs/index.js");
 // });
 
 describe("Different dlVideoWithAudio() cases:", () => {
+  it("should download video and audio with valid YouTube URL and <filename: title.mp3 || resolution: 360>", async function () {
+    this.timeout(30000);
+    await dlVideoWithAudio({
+      url: "https://youtu.be/Wgx6WvlOv_0",
+      foldername: "downloads",
+      resolution: 360,
+    });
+  });
+
   // it(
   // chalk.blue(
   // "should download audio with valid YouTube URL and <filename: random.mp3 || resolution: 144>"
@@ -45,13 +54,4 @@ describe("Different dlVideoWithAudio() cases:", () => {
   // });
   // }
   // );
-
-  it("should download video and audio with valid YouTube URL and <filename: title.mp3 || resolution: 360>", async function () {
-    this.timeout(30000);
-    await dlVideoWithAudio({
-      url: "https://youtu.be/Wgx6WvlOv_0",
-      foldername: "downloads",
-      resolution: 360,
-    });
-  });
 });

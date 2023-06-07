@@ -12,25 +12,25 @@ const logger = winston.createLogger({
       switch (level) {
         case "info":
           emoji = "✨";
-          level = chalk.bold(chalk.bgGreen(chalk.italic(level, ": ")));
+          level = chalk.bold(chalk.italic(level, ": "));
           message = chalk.bold(chalk.green(chalk.italic(message)));
           timestampColor = chalk.bgGreen;
           break;
         case "debug":
           emoji = "🐛";
-          level = chalk.bold(chalk.bgBlue(chalk.italic(level, ": ")));
+          level = chalk.bold(chalk.italic(level, ": "));
           message = chalk.bold(chalk.blue(chalk.italic(message)));
           timestampColor = chalk.bgBlue;
           break;
         case "error":
           emoji = "❌";
-          level = chalk.bold(chalk.bgRed(chalk.italic(level, ": ")));
+          level = chalk.bold(chalk.italic(level, ": "));
           message = chalk.bold(chalk.red(chalk.italic(message)));
           timestampColor = chalk.bgRed;
           break;
         default:
           emoji = "ℹ️";
-          level = chalk.bold(chalk.bgYellow(chalk.italic(level), ": "));
+          level = chalk.bold(chalk.italic(level), ": ");
           message = chalk.bold(chalk.yellow(chalk.italic(message)));
           timestampColor = chalk.bgYellow;
           break;
