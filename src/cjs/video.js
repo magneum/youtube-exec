@@ -7,8 +7,6 @@ const readline = require("readline");
 const chalk = require("chalk");
 const plogger = progLogger();
 const path = require("path");
-const fs = require("fs");
-
 const log = (message) => {
   logger.info(message);
 };
@@ -84,7 +82,7 @@ const downloadVideoAndAudioFiles = async (
       .on("error", (err) => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        logger.error(
+        log(
           chalk.bold(
             chalk.red(`Error downloading video and audio files: ${err.message}`)
           )
@@ -101,97 +99,55 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
+const displayVideoDetails = (reqVideo, reqAudio, videoTitle, url) => {
   log(
     chalk.bold(
       chalk.bgCyanBright("Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
     )
   );
+
   if (reqVideo) {
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video Format: ${chalk.bold(
-            chalk.italic(chalk.white(reqVideo.format_id))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video Resolution: ${chalk.bold(
-            chalk.italic(chalk.white(reqVideo.height))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
-        )
-      )
-    );
+    Object.entries(reqVideo).forEach(([key, value]) => {
+      switch (key) {
+        case "url":
+          url = value;
+          break;
+        default:
+          log(
+            chalk.bold(
+              chalk.yellow(
+                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+              )
+            )
+          );
+          break;
+      }
+    });
   } else {
     log(chalk.bold(chalk.yellow("No video details found.")));
   }
+
   if (reqAudio) {
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio Format: ${chalk.bold(
-            chalk.italic(chalk.white(reqAudio.format_id))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio Bitrate: ${chalk.bold(
-            chalk.italic(chalk.white(reqAudio.abr))
-          )}kbps`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
-        )
-      )
-    );
+    Object.entries(reqAudio).forEach(([key, value]) => {
+      switch (key) {
+        case "url":
+          url = value;
+          break;
+        default:
+          log(
+            chalk.bold(
+              chalk.yellow(
+                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+              )
+            )
+          );
+          break;
+      }
+    });
   } else {
     log(chalk.bold(chalk.yellow("No audio details found.")));
   }
-  return url;
-};
-
-const displayVideoDetails = (reqVideo, videoTitle, url) => {
-  log(
-    chalk.bold(
-      chalk.bgCyanBright("Video Title:"),
-      chalk.bold(chalk.italic(chalk.white(videoTitle)))
-    )
-  );
-  Object.entries(reqVideo).forEach(([key, value]) => {
-    switch (key) {
-      case "url":
-        url = value;
-        break;
-      default:
-        log(
-          chalk.bold(
-            chalk.yellow(
-              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-            )
-          )
-        );
-        break;
-    }
-  });
   return url;
 };
 
@@ -205,12 +161,12 @@ const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
       requestedResolution: resolution,
     });
     if (reqVideo && reqAudio) {
-      url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
-      url = displayVideoDetails(reqVideo, videoTitle, url);
+      url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
       const outputFilename = filename || `${videoTitle}.mp4`;
       const outputPath = foldername
         ? path.join(foldername, outputFilename)
         : outputFilename;
+
       await downloadVideoAndAudioFiles(
         reqVideo.url,
         reqAudio.url,

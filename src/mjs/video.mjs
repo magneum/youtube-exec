@@ -82,7 +82,7 @@ const downloadVideoAndAudioFiles = async (
       .on("error", (err) => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        logger.error(
+        log(
           chalk.bold(
             chalk.red(`Error downloading video and audio files: ${err.message}`)
           )
@@ -99,7 +99,7 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const displayVideoDetails = (reqVideo, videoTitle, url) => {
+const displayVideoDetails = (reqVideo, reqAudio, videoTitle, url) => {
   log(
     chalk.bold(
       chalk.bgCyanBright("Video Title:"),
@@ -107,115 +107,80 @@ const displayVideoDetails = (reqVideo, videoTitle, url) => {
     )
   );
 
-  Object.entries(reqVideo).forEach(([key, value]) => {
-    switch (key) {
-      case "url":
-        url = value;
-        break;
-      default:
-        log(
-          chalk.bold(
-            chalk.yellow(
-              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-            )
-          )
-        );
-        break;
-    }
-  });
   if (reqVideo) {
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video Format: ${chalk.bold(
-            chalk.italic(chalk.white(reqVideo.format_id))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video Resolution: ${chalk.bold(
-            chalk.italic(chalk.white(reqVideo.height))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
-        )
-      )
-    );
+    Object.entries(reqVideo).forEach(([key, value]) => {
+      switch (key) {
+        case "url":
+          url = value;
+          break;
+        default:
+          log(
+            chalk.bold(
+              chalk.yellow(
+                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+              )
+            )
+          );
+          break;
+      }
+    });
   } else {
     log(chalk.bold(chalk.yellow("No video details found.")));
   }
+
   if (reqAudio) {
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio Format: ${chalk.bold(
-            chalk.italic(chalk.white(reqAudio.format_id))
-          )}`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio Bitrate: ${chalk.bold(
-            chalk.italic(chalk.white(reqAudio.abr))
-          )}kbps`
-        )
-      )
-    );
-    log(
-      chalk.bold(
-        chalk.yellow(
-          `Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
-        )
-      )
-    );
+    Object.entries(reqAudio).forEach(([key, value]) => {
+      switch (key) {
+        case "url":
+          url = value;
+          break;
+        default:
+          log(
+            chalk.bold(
+              chalk.yellow(
+                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+              )
+            )
+          );
+          break;
+      }
+    });
   } else {
     log(chalk.bold(chalk.yellow("No audio details found.")));
   }
   return url;
 };
 
-const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (!validateUrl(url)) {
-        throw new Error("Invalid URL format.");
-      }
-      const { reqVideo, reqAudio, videoTitle } =
-        await fetchVideoAndAudioDetails({
-          url,
-          requestedResolution: resolution,
-        });
-      if (reqVideo && reqAudio) {
-        url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
-        if (foldername) {
-          await downloadVideoAndAudioFiles(
-            reqVideo.url,
-            reqAudio.url,
-            foldername,
-            reqVideo
-          );
-        }
-        log(chalk.bold(chalk.green("Video downloaded successfully!")));
-        resolve();
-      } else {
-        throw new Error("No video and audio details found.");
-      }
-    } catch (err) {
-      reject(err);
+const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
+  try {
+    if (!validateUrl(url)) {
+      throw new Error("Invalid URL format.");
     }
-  });
-};
+    const { reqVideo, reqAudio, videoTitle } = await fetchVideoAndAudioDetails({
+      url,
+      requestedResolution: resolution,
+    });
+    if (reqVideo && reqAudio) {
+      url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
+      const outputFilename = filename || `${videoTitle}.mp4`;
+      const outputPath = foldername
+        ? path.join(foldername, outputFilename)
+        : outputFilename;
 
+      await downloadVideoAndAudioFiles(
+        reqVideo.url,
+        reqAudio.url,
+        outputPath,
+        reqVideo
+      );
+      log(chalk.bold(chalk.green("Video downloaded successfully!")));
+    } else {
+      throw new Error("No video and audio details found.");
+    }
+  } catch (err) {
+    throw new Error(`Error downloading video and audio: ${err.message}`);
+  }
+};
 export default dlVideoWithAudio;
 
 // dlVideoWithAudio({
