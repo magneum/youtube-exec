@@ -1,54 +1,12 @@
 import progLogger from "progress-estimator";
+import logger from "../../utils/logger.mjs";
 import youtubedl from "youtube-dl-exec";
 import ffmpeg from "fluent-ffmpeg";
 import urlRegex from "url-regex";
 import readline from "readline";
-import moment from "moment";
-import winston from "winston";
+const plogger = progLogger();
 import chalk from "chalk";
 import path from "path";
-
-const plogger = progLogger();
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.printf(({ level, message }) => {
-      let emoji;
-      let timestampColor;
-      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
-      switch (level) {
-        case "info":
-          emoji = "✨";
-          level = chalk.bold(chalk.bgGreen(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.green(chalk.italic(message)));
-          timestampColor = chalk.bgGreen;
-          break;
-        case "debug":
-          emoji = "🐛";
-          level = chalk.bold(chalk.bgBlue(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.blue(chalk.italic(message)));
-          timestampColor = chalk.bgBlue;
-          break;
-        case "error":
-          emoji = "❌";
-          level = chalk.bold(chalk.bgRed(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.red(chalk.italic(message)));
-          timestampColor = chalk.bgRed;
-          break;
-        default:
-          emoji = "ℹ️";
-          level = chalk.bold(chalk.bgYellow(chalk.italic(level), ": "));
-          message = chalk.bold(chalk.yellow(chalk.italic(message)));
-          timestampColor = chalk.bgYellow;
-          break;
-      }
-      timestamp = timestampColor(timestamp);
-      return `${timestamp}${emoji} ${level} ${message}`;
-    })
-  ),
-  transports: [new winston.transports.Console()],
-});
-
 const log = (message) => {
   logger.info(message);
 };
@@ -141,13 +99,30 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
+const displayVideoDetails = (reqVideo, videoTitle, url) => {
   log(
     chalk.bold(
       chalk.bgCyanBright("Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
     )
   );
+
+  Object.entries(reqVideo).forEach(([key, value]) => {
+    switch (key) {
+      case "url":
+        url = value;
+        break;
+      default:
+        log(
+          chalk.bold(
+            chalk.yellow(
+              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+            )
+          )
+        );
+        break;
+    }
+  });
   if (reqVideo) {
     log(
       chalk.bold(
@@ -209,32 +184,6 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
   return url;
 };
 
-const displayVideoDetails = (reqVideo, videoTitle, url) => {
-  log(
-    chalk.bold(
-      chalk.bgCyanBright("Video Title:"),
-      chalk.bold(chalk.italic(chalk.white(videoTitle)))
-    )
-  );
-  Object.entries(reqVideo).forEach(([key, value]) => {
-    switch (key) {
-      case "url":
-        url = value;
-        break;
-      default:
-        log(
-          chalk.bold(
-            chalk.yellow(
-              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-            )
-          )
-        );
-        break;
-    }
-  });
-  return url;
-};
-
 const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -247,8 +196,7 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
           requestedResolution: resolution,
         });
       if (reqVideo && reqAudio) {
-        url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
-        url = displayVideoDetails(reqVideo, videoTitle, url);
+        url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
         if (foldername) {
           await downloadVideoAndAudioFiles(
             reqVideo.url,

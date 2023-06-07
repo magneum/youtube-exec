@@ -1,53 +1,13 @@
 const progLogger = require("progress-estimator");
 const youtubedl = require("youtube-dl-exec");
+const logger = require("../../utils/logger.js");
 const ffmpeg = require("fluent-ffmpeg");
 const urlRegex = require("url-regex");
 const readline = require("readline");
-const moment = require("moment");
-const winston = require("winston");
 const chalk = require("chalk");
-const path = require("path");
-
 const plogger = progLogger();
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.printf(({ level, message }) => {
-      let emoji;
-      let timestampColor;
-      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
-      switch (level) {
-        case "info":
-          emoji = "✨";
-          level = chalk.bold(chalk.bgGreen(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.green(chalk.italic(message)));
-          timestampColor = chalk.bgGreen;
-          break;
-        case "debug":
-          emoji = "🐛";
-          level = chalk.bold(chalk.bgBlue(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.blue(chalk.italic(message)));
-          timestampColor = chalk.bgBlue;
-          break;
-        case "error":
-          emoji = "❌";
-          level = chalk.bold(chalk.bgRed(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.red(chalk.italic(message)));
-          timestampColor = chalk.bgRed;
-          break;
-        default:
-          emoji = "ℹ️";
-          level = chalk.bold(chalk.bgYellow(chalk.italic(level), ": "));
-          message = chalk.bold(chalk.yellow(chalk.italic(message)));
-          timestampColor = chalk.bgYellow;
-          break;
-      }
-      timestamp = timestampColor(timestamp);
-      return `${timestamp}${emoji} ${level} ${message}`;
-    })
-  ),
-  transports: [new winston.transports.Console()],
-});
+const path = require("path");
+const fs = require("fs");
 
 const log = (message) => {
   logger.info(message);
