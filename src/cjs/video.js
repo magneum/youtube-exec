@@ -1,6 +1,6 @@
 const progLogger = require("progress-estimator");
-const logger = require("../../utils/logger.mjs");
 const youtubedl = require("youtube-dl-exec");
+const logger = require("../../utils/logger.js");
 const ffmpeg = require("fluent-ffmpeg");
 const urlRegex = require("url-regex");
 const readline = require("readline");
