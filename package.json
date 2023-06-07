@@ -6,7 +6,9 @@
   "module": "./app/mjs/index.mjs",
   "types": "./app/types/index.d.ts",
   "scripts": {
-    "test": "mocha test/audio.test.js && mocha test/video.test.js",
+    "local:audio": "node --no-warnings src/local/audio.mjs",
+    "local:video": "node --no-warnings src/local/video.mjs",
+    "test": "npx mocha test/audio.test.js && npx mocha test/video.test.js",
     "prestart": "python --version 2>&1 >/dev/null || echo 'Python is not installed. Please install Python to run this code.'"
   },
   "keywords": [
@@ -48,8 +50,6 @@
     "youtube-dl-exec": "^2.4.4"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.22.4",
-    "@babel/register": "^7.21.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22"

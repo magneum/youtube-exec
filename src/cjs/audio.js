@@ -14,37 +14,32 @@ const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.printf(({ level, message }) => {
-      let emoji;
       let timestampColor;
       let timestamp = moment().format("HH:mm:ss") + "(magneum)";
       switch (level) {
         case "info":
-          emoji = "✨";
-          level = chalk.bold(chalk.bgGreen(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.green(chalk.italic(message)));
           timestampColor = chalk.bgGreen;
+          level = chalk.bold(chalk.italic(level, ": "));
+          message = chalk.bold(chalk.green(chalk.italic(message)));
           break;
         case "debug":
-          emoji = "🐛";
-          level = chalk.bold(chalk.bgBlue(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.blue(chalk.italic(message)));
           timestampColor = chalk.bgBlue;
+          level = chalk.bold(chalk.italic(level, ": "));
+          message = chalk.bold(chalk.blue(chalk.italic(message)));
           break;
         case "error":
-          emoji = "❌";
-          level = chalk.bold(chalk.bgRed(chalk.italic(level, ": ")));
-          message = chalk.bold(chalk.red(chalk.italic(message)));
           timestampColor = chalk.bgRed;
+          level = chalk.bold(chalk.italic(level, ": "));
+          message = chalk.bold(chalk.red(chalk.italic(message)));
           break;
         default:
-          emoji = "ℹ️";
-          level = chalk.bold(chalk.bgYellow(chalk.italic(level), ": "));
-          message = chalk.bold(chalk.yellow(chalk.italic(message)));
           timestampColor = chalk.bgYellow;
+          level = chalk.bold(chalk.italic(level), ": ");
+          message = chalk.bold(chalk.yellow(chalk.italic(message)));
           break;
       }
       timestamp = timestampColor(timestamp);
-      return `${timestamp}${emoji} ${level} ${message}`;
+      return `${timestamp} ${level} ${message}`;
     })
   ),
   transports: [new winston.transports.Console()],
