@@ -16,7 +16,7 @@ describe("dlAudio", async function () {
   it("should download audio with all parameters provided", async function () {
     this.timeout(40000);
     const quality = "lowest";
-    const filename = "my-audio";
+    const filename = "cutom-audio";
     const foldername = "downloads";
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const params = { url, foldername, quality, filename };
@@ -27,7 +27,7 @@ describe("dlAudio", async function () {
   it("should download audio without foldername", async function () {
     this.timeout(40000);
     const quality = "lowest";
-    const filename = "my-audio";
+    const filename = "cutom-audio";
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const params = { url, quality, filename };
     await dlAudio(params);

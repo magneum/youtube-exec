@@ -9,7 +9,7 @@ describe("dlVideoWithAudio", async function () {
     sinon.stub(console, "error");
   });
 
-  afterEach(() => {
+  afterEach(() => {s
     sinon.restore();
   });
 
@@ -17,7 +17,7 @@ describe("dlVideoWithAudio", async function () {
     this.timeout(40000);
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const foldername = "downloads";
-    const filename = "my-video";
+    const filename = "cutom-video";
     const resolution = 144;
     const params = { url, foldername, filename, resolution };
     await dlVideoWithAudio(params);
@@ -27,7 +27,7 @@ describe("dlVideoWithAudio", async function () {
   it("should download video with audio without foldername", async function () {
     this.timeout(40000);
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const filename = "my-video";
+    const filename = "cutom-video";
     const resolution = 144;
     const params = { url, filename, resolution };
     await dlVideoWithAudio(params);
