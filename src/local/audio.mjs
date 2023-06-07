@@ -1,48 +1,12 @@
 import progLogger from "progress-estimator";
+import logger from "../../utils/logger.mjs";
 import youtubedl from "youtube-dl-exec";
 import ffmpeg from "fluent-ffmpeg";
 import urlRegex from "url-regex";
 import readline from "readline";
-import moment from "moment";
-import winston from "winston";
+const plogger = progLogger();
 import chalk from "chalk";
 import path from "path";
-
-const plogger = progLogger();
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.printf(({ level, message }) => {
-      let timestampColor;
-      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
-      switch (level) {
-        case "info":
-          timestampColor = chalk.bgGreen;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.green(chalk.italic(message)));
-          break;
-        case "debug":
-          timestampColor = chalk.bgBlue;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.blue(chalk.italic(message)));
-          break;
-        case "error":
-          timestampColor = chalk.bgRed;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.red(chalk.italic(message)));
-          break;
-        default:
-          timestampColor = chalk.bgYellow;
-          level = chalk.bold(chalk.italic(level), ": ");
-          message = chalk.bold(chalk.yellow(chalk.italic(message)));
-          break;
-      }
-      timestamp = timestampColor(timestamp);
-      return `${timestamp} ${level} ${message}`;
-    })
-  ),
-  transports: [new winston.transports.Console()],
-});
 
 const log = (message) => {
   logger.info(message);
