@@ -1,12 +1,54 @@
 const progLogger = require("progress-estimator");
 const youtubedl = require("youtube-dl-exec");
-const logger = require("../../utils/logger.js");
 const ffmpeg = require("fluent-ffmpeg");
 const urlRegex = require("url-regex");
 const readline = require("readline");
+const moment = require("moment");
+const winston = require("winston");
 const chalk = require("chalk");
-const plogger = progLogger();
 const path = require("path");
+
+const plogger = progLogger();
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.printf(({ level, message }) => {
+      let emoji;
+      let timestampColor;
+      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
+      switch (level) {
+        case "info":
+          emoji = "✨";
+          level = chalk.bold(chalk.bgGreen(chalk.italic(level, ": ")));
+          message = chalk.bold(chalk.green(chalk.italic(message)));
+          timestampColor = chalk.bgGreen;
+          break;
+        case "debug":
+          emoji = "🐛";
+          level = chalk.bold(chalk.bgBlue(chalk.italic(level, ": ")));
+          message = chalk.bold(chalk.blue(chalk.italic(message)));
+          timestampColor = chalk.bgBlue;
+          break;
+        case "error":
+          emoji = "❌";
+          level = chalk.bold(chalk.bgRed(chalk.italic(level, ": ")));
+          message = chalk.bold(chalk.red(chalk.italic(message)));
+          timestampColor = chalk.bgRed;
+          break;
+        default:
+          emoji = "ℹ️";
+          level = chalk.bold(chalk.bgYellow(chalk.italic(level), ": "));
+          message = chalk.bold(chalk.yellow(chalk.italic(message)));
+          timestampColor = chalk.bgYellow;
+          break;
+      }
+      timestamp = timestampColor(timestamp);
+      return `${timestamp}${emoji} ${level} ${message}`;
+    })
+  ),
+  transports: [new winston.transports.Console()],
+});
+
 const log = (message) => {
   logger.info(message);
 };
@@ -82,7 +124,7 @@ const downloadVideoAndAudioFiles = async (
       .on("error", (err) => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        log(
+        logger.error(
           chalk.bold(
             chalk.red(`Error downloading video and audio files: ${err.message}`)
           )
@@ -99,55 +141,97 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const displayVideoDetails = (reqVideo, reqAudio, videoTitle, url) => {
+const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
   log(
     chalk.bold(
       chalk.bgCyanBright("Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
     )
   );
-
   if (reqVideo) {
-    Object.entries(reqVideo).forEach(([key, value]) => {
-      switch (key) {
-        case "url":
-          url = value;
-          break;
-        default:
-          log(
-            chalk.bold(
-              chalk.yellow(
-                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-              )
-            )
-          );
-          break;
-      }
-    });
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Video Format: ${chalk.bold(
+            chalk.italic(chalk.white(reqVideo.format_id))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Video Resolution: ${chalk.bold(
+            chalk.italic(chalk.white(reqVideo.height))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
+        )
+      )
+    );
   } else {
     log(chalk.bold(chalk.yellow("No video details found.")));
   }
-
   if (reqAudio) {
-    Object.entries(reqAudio).forEach(([key, value]) => {
-      switch (key) {
-        case "url":
-          url = value;
-          break;
-        default:
-          log(
-            chalk.bold(
-              chalk.yellow(
-                `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-              )
-            )
-          );
-          break;
-      }
-    });
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Audio Format: ${chalk.bold(
+            chalk.italic(chalk.white(reqAudio.format_id))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Audio Bitrate: ${chalk.bold(
+            chalk.italic(chalk.white(reqAudio.abr))
+          )}kbps`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
+        )
+      )
+    );
   } else {
     log(chalk.bold(chalk.yellow("No audio details found.")));
   }
+  return url;
+};
+
+const displayVideoDetails = (reqVideo, videoTitle, url) => {
+  log(
+    chalk.bold(
+      chalk.bgCyanBright("Video Title:"),
+      chalk.bold(chalk.italic(chalk.white(videoTitle)))
+    )
+  );
+  Object.entries(reqVideo).forEach(([key, value]) => {
+    switch (key) {
+      case "url":
+        url = value;
+        break;
+      default:
+        log(
+          chalk.bold(
+            chalk.yellow(
+              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+            )
+          )
+        );
+        break;
+    }
+  });
   return url;
 };
 
@@ -161,12 +245,12 @@ const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
       requestedResolution: resolution,
     });
     if (reqVideo && reqAudio) {
-      url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
+      url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
+      url = displayVideoDetails(reqVideo, videoTitle, url);
       const outputFilename = filename || `${videoTitle}.mp4`;
       const outputPath = foldername
         ? path.join(foldername, outputFilename)
         : outputFilename;
-
       await downloadVideoAndAudioFiles(
         reqVideo.url,
         reqAudio.url,
