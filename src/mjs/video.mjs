@@ -50,13 +50,14 @@ const findReqAudioFormat = (formats) => {
 const downloadVideoAndAudioFiles = async (
   videoUrl,
   audioUrl,
-  outputFile,
-  videoFormat
+  foldername,
+  filename,
+  videoForma
 ) => {
-  outputFile = path.join(
-    outputFile,
-    `[${videoFormat.height}]${videoFormat.format_id}.mp4`
-  );
+  let output;
+  if (foldername) foldername = outputFile = path.join(outputFile,`[${videoFormat.height}]${videoFormat.format_id}.mp4`);
+  if (filename) filename = filename
+  
   return new Promise((resolve, reject) => {
     const ffmpegCommand = ffmpeg()
       .input(videoUrl)
@@ -162,15 +163,11 @@ const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
     });
     if (reqVideo && reqAudio) {
       url = displayVideoDetails(reqVideo, reqAudio, videoTitle, url);
-      const outputFilename = filename || `${videoTitle}.mp4`;
-      const outputPath = foldername
-        ? path.join(foldername, outputFilename)
-        : outputFilename;
-
       await downloadVideoAndAudioFiles(
         reqVideo.url,
         reqAudio.url,
-        outputPath,
+        foldername,
+        filename,
         reqVideo
       );
       log(chalk.bold(chalk.green("Video downloaded successfully!")));
