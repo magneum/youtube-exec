@@ -9,19 +9,18 @@ import chalk from "chalk";
 import path from "path";
 import fs from "fs";
 
-const log = (message) => {
-  logger.info(message);
-};
-
 const createFolderIfNotExists = (foldername) => {
+  if (!foldername) {
+    foldername = "ytdl-exec";
+  }
   if (!fs.existsSync(foldername)) {
     fs.mkdirSync(foldername);
-    log(`📂 Created folder: ${foldername}`);
+    logger.info(`📂 Created folder: ${foldername}`);
   }
 };
 
 const fetchAudioDetails = async ({ url, quality }) => {
-  log("🔍 Fetching audio details...");
+  logger.info("🔍 Fetching audio details...");
   try {
     const promise = youtubedl(url, { dumpSingleJson: true });
     const result = await plogger(promise, "⏳ Obtaining...");
@@ -29,13 +28,14 @@ const fetchAudioDetails = async ({ url, quality }) => {
     const reqAudio = findReqAudioFormat(result.formats, quality);
     return { reqAudio, videoTitle };
   } catch (err) {
-    throw new Error(`❌ Error fetching audio details: ${err.message}`);
+    logger.info(chalk.red(`❌ Error fetching audio details: ${err.message}`));
+    throw err;
   }
 };
 
 const findReqAudioFormat = (formats, quality) => {
   let reqAudio = null;
-  log(`🔍 Fetching Audio Quality: ${quality}`);
+  logger.info(`🔍 Fetching Audio Quality: ${quality}`);
   if (quality === "best") {
     let highestBitrate = 0;
     for (let i = 0; i < formats.length; i++) {
@@ -64,18 +64,29 @@ const findReqAudioFormat = (formats, quality) => {
       }
     }
     return reqAudio;
-  } else throw new Error("❌ Error: Audio Quality supported: best,lowest");
+  } else {
+    logger.info(chalk.red("❌ Error: Audio Quality supported: best,lowest"));
+    throw new Error("Error: Audio Quality supported: best,lowest");
+  }
 };
 
 const downloadAudioFile = async (ffmpegUrl, outputFile, quality, filename) => {
-  outputFile = path.join(outputFile, `[${quality}]${filename}.mp3`);
+  let outputFilename;
+  if (filename) {
+    outputFilename = filename;
+  } else {
+    const videoTitle = path.basename(ffmpegUrl, path.extname(ffmpegUrl));
+    outputFilename = `[${quality}]${videoTitle}`;
+  }
+  outputFile = path.join(outputFile, `${outputFilename}.mp3`);
+
   return new Promise((resolve, reject) => {
     const ffmpegCommand = ffmpeg()
       .input(ffmpegUrl)
       .audioBitrate(320)
       .toFormat("ipod")
       .on("start", () => {
-        log("📥 Audio download started...");
+        logger.info("📥 Audio download started...");
       })
       .on("progress", (progress) => {
         readline.clearLine(process.stdout, 0);
@@ -85,13 +96,15 @@ const downloadAudioFile = async (ffmpegUrl, outputFile, quality, filename) => {
       .on("end", () => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        log(chalk.bold(chalk.green("✅ Audio downloaded successfully!")));
+        logger.info(
+          chalk.bold(chalk.green("✅ Audio downloaded successfully!"))
+        );
         resolve();
       })
       .on("error", (err) => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        logger.error(
+        logger.info(
           chalk.bold(
             chalk.red(`❌ Error downloading audio file: ${err.message}`)
           )
@@ -109,7 +122,7 @@ const validateUrl = (url) => {
 };
 
 const displayAudioDetails = (reqAudio, videoTitle, url) => {
-  log(
+  logger.info(
     chalk.bold(
       chalk.bgCyanBright("🎥 Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
@@ -121,12 +134,12 @@ const displayAudioDetails = (reqAudio, videoTitle, url) => {
         url = value;
         break;
       case "fragments":
-        log(chalk.bold(`${chalk.yellow(key)}:`));
+        logger.info(chalk.bold(`▶️ ${chalk.yellow(key)}:`));
         value.forEach((fragment, index) => {
-          log(chalk.bold(chalk.yellow(`▶️ Fragment no ${index + 1}:`)));
+          logger.info(chalk.bold(chalk.yellow(`- Fragment no ${index + 1}:`)));
           Object.entries(fragment).forEach(([fKey, fValue]) => {
-            log(
-              `- ${chalk.bold(chalk.yellow(fKey))}: ${chalk.bold(
+            logger.info(
+              `${chalk.bold(chalk.yellow(fKey))}: ${chalk.bold(
                 chalk.italic(chalk.white(fValue))
               )}`
             );
@@ -134,7 +147,7 @@ const displayAudioDetails = (reqAudio, videoTitle, url) => {
         });
         break;
       default:
-        log(
+        logger.info(
           chalk.bold(
             chalk.yellow(
               `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
@@ -151,7 +164,8 @@ const dlAudio = ({ url, foldername, quality, filename }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!validateUrl(url)) {
-        throw new Error("❌ Invalid URL format.");
+        logger.info(chalk.red("❌ Invalid URL format."));
+        throw new Error("Invalid URL format.");
       }
       const { reqAudio, videoTitle } = await fetchAudioDetails({
         url,
@@ -160,26 +174,62 @@ const dlAudio = ({ url, foldername, quality, filename }) => {
       if (reqAudio) {
         url = displayAudioDetails(reqAudio, videoTitle, url);
         if (!foldername) {
-          foldername = "downloads";
-          createFolderIfNotExists(foldername);
-        } else if (!fs.existsSync(foldername)) {
-          createFolderIfNotExists(foldername);
+          foldername = "ytdl-exec";
         }
-        const outputFilename = filename
-          ? `${filename}`
-          : `[${quality}]${videoTitle}`;
+        createFolderIfNotExists(foldername);
+        let outputFilename;
+        if (filename) {
+          outputFilename = `${filename}`;
+        } else {
+          outputFilename = `[${quality}]${videoTitle}`;
+        }
         await downloadAudioFile(url, foldername, quality, outputFilename);
       } else {
-        log(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
+        logger.info(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
       }
       resolve();
     } catch (err) {
-      logger.error(
-        chalk.bold(chalk.red(`❌ An error occurred: ${err.message}`))
-      );
+      logger.info(chalk.red(`❌ An error occurred: ${err.message}`));
       reject(err);
     }
   });
 };
 
 export default dlAudio;
+
+const testDlAudio = async () => {
+  try {
+    const quality = "lowest";
+    const filename = "my-audio";
+    const foldername = "downloads";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const testCases = [
+      {
+        params: { url, foldername, quality, filename },
+        description: "with all parameters provided",
+      },
+      {
+        params: { url, quality, filename },
+        description: "without foldername",
+      },
+      {
+        params: { url, foldername, quality },
+        description: "without filename",
+      },
+      {
+        params: { url, quality },
+        description: "without foldername and filename",
+      },
+    ];
+    for (const testCase of testCases) {
+      const { params, description } = testCase;
+      logger.info(chalk.yellow(`🐞 Running test: ${description}`));
+      await dlAudio(params);
+      logger.info(chalk.green(`💡 Test: ${description} - Passed\n`));
+    }
+  } catch (error) {
+    logger.info(chalk.red(("❌ Error occurred:", error)));
+  }
+};
+
+testDlAudio();

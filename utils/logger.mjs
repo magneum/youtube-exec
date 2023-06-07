@@ -7,7 +7,7 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.printf(({ level, message }) => {
       let timestampColor;
-      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
+      let timestamp = moment().format("HH:mm:ss");
       switch (level) {
         case "info":
           timestampColor = chalk.bgGreen;
