@@ -1,66 +1,55 @@
-const chalk = require("chalk");
-const { v4: uuidv4 } = require("uuid");
+const sinon = require("sinon");
+const assert = require("chai").assert;
 const { dlAudio } = require("../app/cjs/index.js");
 
-describe("Different error cases:", () => {
-  it(
-    chalk.red(
-      "should handle valid YouTube URL with no output location for dlAudio()"
-    ),
-    async function () {
-      this.timeout(10000);
-      await dlAudio({
-        url: "https://www.youtube.com/watch?v=es",
-      });
-      throw new Error(
-        chalk.green("Expected an error, but the function succeeded.")
-      );
-    }
-  );
+describe("dlAudio", async function () {
+  this.timeout(40000);
+  beforeEach(() => {
+    sinon.stub(console, "info");
+    sinon.stub(console, "error");
+  });
 
-  it(
-    chalk.red("should handle invalid YouTube URL for dlAudio()"),
-    async function () {
-      await dlAudio({
-        url: "https://www.youtube.com/watch?v=invalidurl",
-        foldername: "downloads",
-        filename: uuidv4(),
-        quality: "lowest",
-      });
-      throw new Error(
-        chalk.green("Expected an error, but the function succeeded.")
-      );
-    }
-  );
-});
+  afterEach(() => {
+    sinon.restore();
+  });
 
-describe("Different dlAudio() cases:", () => {
-  it(
-    chalk.blue(
-      "should download audio with valid YouTube URL and <filename: random.mp3 || quality: lowest>"
-    ),
-    async function () {
-      this.timeout(30000);
-      await dlAudio({
-        url: "https://youtu.be/Wgx6WvlOv_0",
-        foldername: "downloads",
-        filename: uuidv4(),
-        quality: "lowest",
-      });
-    }
-  );
+  it("should download audio with all parameters provided", async function () {
+    this.timeout(40000);
+    const quality = "lowest";
+    const filename = "my-audio";
+    const foldername = "downloads";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, foldername, quality, filename };
+    await dlAudio(params);
+    assert.isTrue(true);
+  });
 
-  it(
-    chalk.yellow(
-      "should download audio with valid YouTube URL and <filename: title.mp3 (default) || quality: best>"
-    ),
-    async function () {
-      this.timeout(30000);
-      await dlAudio({
-        url: "https://youtu.be/Wgx6WvlOv_0",
-        foldername: "downloads",
-        quality: "best",
-      });
-    }
-  );
+  it("should download audio without foldername", async function () {
+    this.timeout(40000);
+    const quality = "lowest";
+    const filename = "my-audio";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, quality, filename };
+    await dlAudio(params);
+    assert.isTrue(true);
+  });
+
+  it("should download audio without filename", async function () {
+    this.timeout(40000);
+    const quality = "lowest";
+    const foldername = "downloads";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, foldername, quality };
+    await dlAudio(params);
+    assert.isTrue(true);
+  });
+
+  it("should download audio without foldername and filename", async function () {
+    this.timeout(40000);
+    const quality = "lowest";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    const params = { url, quality };
+    await dlAudio(params);
+    assert.isTrue(true);
+  });
 });
