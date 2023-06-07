@@ -1,64 +1,42 @@
 import progLogger from "progress-estimator";
+import logger from "../../utils/logger.mjs";
 import youtubedl from "youtube-dl-exec";
 import ffmpeg from "fluent-ffmpeg";
 import urlRegex from "url-regex";
 import readline from "readline";
-import moment from "moment";
-import winston from "winston";
 import chalk from "chalk";
 import path from "path";
+import fs from "fs";
 
 const plogger = progLogger();
-const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.printf(({ level, message }) => {
-      let timestampColor;
-      let timestamp = moment().format("HH:mm:ss") + "(magneum)";
-      switch (level) {
-        case "info":
-          timestampColor = chalk.bgGreen;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.green(chalk.italic(message)));
-          break;
-        case "debug":
-          timestampColor = chalk.bgBlue;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.blue(chalk.italic(message)));
-          break;
-        case "error":
-          timestampColor = chalk.bgRed;
-          level = chalk.bold(chalk.italic(level, ": "));
-          message = chalk.bold(chalk.red(chalk.italic(message)));
-          break;
-        default:
-          timestampColor = chalk.bgYellow;
-          level = chalk.bold(chalk.italic(level), ": ");
-          message = chalk.bold(chalk.yellow(chalk.italic(message)));
-          break;
-      }
-      timestamp = timestampColor(timestamp);
-      return `${timestamp} ${level} ${message}`;
-    })
-  ),
-  transports: [new winston.transports.Console()],
-});
 
 const log = (message) => {
   logger.info(message);
 };
 
+const createFolderIfNotExists = (foldername) => {
+  if (!foldername) {
+    foldername = "ytdl-exec";
+  }
+  if (!fs.existsSync(foldername)) {
+    fs.mkdirSync(foldername);
+    logger.info(`📂 Created folder: ${foldername}`);
+  }
+};
+
 const fetchVideoAndAudioDetails = async ({ url, requestedResolution }) => {
-  log("Fetching video and audio details...");
+  log("🔍 Fetching video and audio details...");
   try {
     const promise = youtubedl(url, { dumpSingleJson: true });
-    const result = await plogger(promise, "Obtaining...");
+    const result = await plogger(promise, "⏳ Obtaining...");
     const videoTitle = result.title;
     const reqVideo = findReqVideoFormat(result.formats, requestedResolution);
     const reqAudio = findReqAudioFormat(result.formats);
     return { reqVideo, reqAudio, videoTitle };
   } catch (err) {
-    throw new Error(`Error fetching video and audio details: ${err.message}`);
+    throw new Error(
+      `❌ Error fetching video and audio details: ${err.message}`
+    );
   }
 };
 
@@ -90,10 +68,6 @@ const downloadVideoAndAudioFiles = async (
   outputFile,
   videoFormat
 ) => {
-  outputFile = path.join(
-    outputFile,
-    `[${videoFormat.height}]${videoFormat.format_id}.mp4`
-  );
   return new Promise((resolve, reject) => {
     const ffmpegCommand = ffmpeg()
       .input(videoUrl)
@@ -101,18 +75,18 @@ const downloadVideoAndAudioFiles = async (
       .videoCodec("copy")
       .audioCodec("copy")
       .on("start", () => {
-        log("Video and audio download started...");
+        log("📥 Video and audio download started...");
       })
       .on("progress", (progress) => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        process.stdout.write(`Downloading: ${progress.percent}%`);
+        process.stdout.write(`⬇️ Downloading: ${progress.percent}%`);
       })
       .on("end", () => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
         log(
-          chalk.bold(chalk.green("Video and audio downloaded successfully!"))
+          chalk.bold(chalk.green("✅ Video and audio downloaded successfully!"))
         );
         resolve();
       })
@@ -121,12 +95,14 @@ const downloadVideoAndAudioFiles = async (
         readline.cursorTo(process.stdout, 0);
         logger.error(
           chalk.bold(
-            chalk.red(`Error downloading video and audio files: ${err.message}`)
+            chalk.red(
+              `❌ Error downloading video and audio files: ${err.message}`
+            )
           )
         );
         reject(err);
       })
-      .saveToFile(outputFile);
+      .save(outputFile);
     ffmpegCommand.run();
   });
 };
@@ -139,7 +115,7 @@ const validateUrl = (url) => {
 const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
   log(
     chalk.bold(
-      chalk.bgCyanBright("Video Title:"),
+      chalk.bgCyanBright("🎥 Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
     )
   );
@@ -147,7 +123,7 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
     log(
       chalk.bold(
         chalk.yellow(
-          `Video Format: ${chalk.bold(
+          `🎞️ Video Format: ${chalk.bold(
             chalk.italic(chalk.white(reqVideo.format_id))
           )}`
         )
@@ -156,7 +132,7 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
     log(
       chalk.bold(
         chalk.yellow(
-          `Video Resolution: ${chalk.bold(
+          `🖥️ Video Resolution: ${chalk.bold(
             chalk.italic(chalk.white(reqVideo.height))
           )}`
         )
@@ -165,18 +141,18 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
     log(
       chalk.bold(
         chalk.yellow(
-          `Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
+          `🔗 Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
         )
       )
     );
   } else {
-    log(chalk.bold(chalk.yellow("No video details found.")));
+    log(chalk.bold(chalk.yellow("⚠️ No video details found.")));
   }
   if (reqAudio) {
     log(
       chalk.bold(
         chalk.yellow(
-          `Audio Format: ${chalk.bold(
+          `🔊 Audio Format: ${chalk.bold(
             chalk.italic(chalk.white(reqAudio.format_id))
           )}`
         )
@@ -185,7 +161,7 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
     log(
       chalk.bold(
         chalk.yellow(
-          `Audio Bitrate: ${chalk.bold(
+          `🔉 Audio Bitrate: ${chalk.bold(
             chalk.italic(chalk.white(reqAudio.abr))
           )}kbps`
         )
@@ -194,12 +170,12 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
     log(
       chalk.bold(
         chalk.yellow(
-          `Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
+          `🔗 Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
         )
       )
     );
   } else {
-    log(chalk.bold(chalk.yellow("No audio details found.")));
+    log(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
   }
   return url;
 };
@@ -207,7 +183,7 @@ const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
 const displayVideoDetails = (reqVideo, videoTitle, url) => {
   log(
     chalk.bold(
-      chalk.bgCyanBright("Video Title:"),
+      chalk.bgCyanBright("🎥 Video Title:"),
       chalk.bold(chalk.italic(chalk.white(videoTitle)))
     )
   );
@@ -230,11 +206,11 @@ const displayVideoDetails = (reqVideo, videoTitle, url) => {
   return url;
 };
 
-const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
+const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!validateUrl(url)) {
-        throw new Error("Invalid URL format.");
+        throw new Error("❌ Invalid URL format.");
       }
       const { reqVideo, reqAudio, videoTitle } =
         await fetchVideoAndAudioDetails({
@@ -244,18 +220,24 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
       if (reqVideo && reqAudio) {
         url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
         url = displayVideoDetails(reqVideo, videoTitle, url);
-        if (foldername) {
-          await downloadVideoAndAudioFiles(
-            reqVideo.url,
-            reqAudio.url,
-            foldername,
-            reqVideo
-          );
+        if (!foldername) {
+          foldername = "ytdl-exec";
         }
-        log(chalk.bold(chalk.green("Video downloaded successfully!")));
+        createFolderIfNotExists(foldername);
+        const outputFilename = filename
+          ? `${filename}.mp4`
+          : `[${reqVideo.height}]${videoTitle}.mp4`;
+        const outputPath = path.join(foldername, outputFilename);
+        await downloadVideoAndAudioFiles(
+          reqVideo.url,
+          reqAudio.url,
+          outputPath,
+          reqVideo
+        );
+        log(chalk.bold(chalk.green("✅ Video downloaded successfully!")));
         resolve();
       } else {
-        throw new Error("No video and audio details found.");
+        throw new Error("⚠️ No video and audio details found.");
       }
     } catch (err) {
       reject(err);
@@ -265,16 +247,46 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
 
 export default dlVideoWithAudio;
 
-// dlVideoWithAudio({
-// url: "https://youtu.be/Wgx6WvlOv_0",
+// const testDownloadVideo = async () => {
+// try {
+// const testCases = [
+// {
+// url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+// foldername: "downloads",
+// filename: "my-video",
+// resolution: 144,
+// description: "with all parameters provided",
+// },
+// {
+// url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+// filename: "my-video",
+// resolution: 144,
+// description: "without foldername",
+// },
+// {
+// url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 // foldername: "downloads",
 // resolution: 144,
-// })
-// .then(() => {
-// console.log("Video and audio downloaded successfully!");
-// })
-// .catch((error) => {
-// console.error("Error downloading video and audio:", error);
-// });
+// description: "without filename",
+// },
+// {
+// url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+// resolution: 144,
+// description: "without foldername and filename",
+// },
+// ];
 
-// Can you now create a new code with the same logic but without the audio related stuffs. What i mean is i want this new code to be just the the dlAudio code but dlVideo.
+// logger.info("🚀 Starting video download...");
+// for (const testCase of testCases) {
+// const { url, foldername, filename, resolution, description } = testCase;
+// logger.info(`🐞 Running test: ${description}`);
+// await dlVideoWithAudio({ url, foldername, filename, resolution });
+// logger.info(`💡 Test: ${description} - Passed\n`);
+// }
+// logger.info("✅ All video download tests completed successfully!");
+// } catch (error) {
+// console.error("❌ Video download tests failed:", error.message);
+// }
+// };
+
+// testDownloadVideo();
