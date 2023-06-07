@@ -1,0 +1,64 @@
+{
+  "name": "ytdl-exec",
+  "version": "0.0.3",
+  "description": "YouTube Downloader Executor is a versatile tool for downloading audio files from YouTube videos. It utilizes the youtube-dl-exec library to extract audio details and the fluent-ffmpeg library to download the audio files in MP3 format. With ytdl-exec, you can easily fetch audio details, choose the desired audio quality, and download the audio file to your specified location.",
+  "main": "./app/cjs/index.js",
+  "module": "./app/mjs/index.mjs",
+  "types": "./app/types/index.d.ts",
+  "scripts": {
+    "test": "mocha test/audio.test.js && mocha test/video.test.js",
+    "prestart": "python --version 2>&1 >/dev/null || echo 'Python is not installed. Please install Python to run this code.'"
+  },
+  "keywords": [
+    "youtube",
+    "downloader",
+    "audio",
+    "video",
+    "download",
+    "exec",
+    "stream",
+    "ffmpeg"
+  ],
+  "author": {
+    "name": "magneum",
+    "url": "https://bit.ly/magneum",
+    "email": "krakinzkon@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/magneum/ytdl-exec#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magneum/ytdl-exec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/magneum/ytdl-exec/issues"
+  },
+  "dependencies": {
+    "axios": "^1.3.4",
+    "chalk": "^4.1.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "moment": "^2.29.4",
+    "node-fetch": "^2.6.1",
+    "path": "^0.12.7",
+    "progress": "^2.0.3",
+    "progress-estimator": "^0.3.1",
+    "url-regex": "^5.0.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.9.0",
+    "youtube-dl-exec": "^2.4.4"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.4",
+    "@babel/register": "^7.21.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}
