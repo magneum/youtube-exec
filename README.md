@@ -1,112 +1,138 @@
-<div align="center">
-    <img src="/images/logo.png" width="200" height="200">
-</div>
+  <div align="center">
+      <img src="/images/logo.png" width="200" height="200">
+  </div>
 
-# YouTube Downloader Executor
+  # YouTube Downloader Executor
 
-🎥📥 YouTube Downloader Executor is a versatile tool for downloading audio and video files from YouTube. It utilizes the `youtube-dl-exec` library to extract video and audio details and the `fluent-ffmpeg` library to download the files. With YouTube Downloader Executor, you can easily fetch video and audio details, choose the desired format and resolution, and download the files to your specified location.
+  🎥📥 **YouTube Downloader Executor** - Unleash the Power of YouTube Downloads!
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+  Looking to grab your favorite audio and video files from YouTube? Look no further! With the mighty YouTube Downloader Executor, you can effortlessly seize those captivating audio and video gems. This versatile tool harnesses the incredible `youtube-dl-exec` library to extract all the juicy details, while the unstoppable `fluent-ffmpeg` library takes care of downloading the files. Say goodbye to limitations and hello to a world of endless possibilities!
 
-## Installation
+  |                |                                                                                               |
+  | -------------- | --------------------------------------------------------------------------------------------- |
+  | License        | [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)                      |
+  | Latest Version | [![npm](https://img.shields.io/npm/v/ytdl-exec.svg)](https://www.npmjs.com/package/ytdl-exec) |
 
-To use YouTube Downloader Executor, you need to have Node.js installed on your system. You can install the project dependencies by running the following command:
+  ## Installation
 
-```bash
-npm install ytdl-exec or yarn add ytdl-exec
-```
+  To embark on your YouTube downloading adventure with YouTube Downloader Executor, you'll need to have Node.js installed on your system. Fear not! The installation process is as easy as a few simple commands:
 
-## Usage
+  - Using yarn:
 
-### Download Audio 🔊
+  ```bash
+  yarn add ytdl-exec
+  ```
 
-To download audio from a YouTube video, you can use the `dlAudio` function provided by the module. Here's an example of how to use it:
+  - Using npm:
 
-```javascript
-const { dlAudio } = require("ytdl-exec");
+  ```bash
+  npm install ytdl-exec
+  ```
 
-const url = "https://www.youtube.com/watch?v=VIDEO_ID";
-const filename = "optional-filename";
-const foldername = "downloads";
-const quality = "best";
+  ## Usage
 
-// Using async/await
-try {
-  await dlAudio({ url, foldername, filename, quality });
-  console.log("Audio downloaded successfully! 🎵🎉");
-} catch (err) {
-  console.error("An error occurred:", err.message);
-}
+  ### Download Audio 🔊
 
-// Using Promises
-dlAudio({ url, foldername, filename, quality })
-  .then(() => {
+  Dive into the world of mesmerizing audio downloads from YouTube by utilizing the powerful `dlAudio` function provided by our amazing module. Here's a sneak peek at how to use it:
+
+  ```javascript
+  const { dlAudio } = require("ytdl-exec");
+  // or
+  import { dlAudio } from "ytdl-exec";
+
+  // Using async/await
+  try {
+    await dlAudio({
+      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      foldername: "foldername", // optional
+      filename: "filename", // optional @default: video-title
+      quality: "best", // or lowest
+    });
     console.log("Audio downloaded successfully! 🎵🎉");
+  } catch (err) {
+    console.error("Oh no, an error occurred:", err.message);
+  }
+
+  // Using Promises
+  dlAudio({
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    foldername: "foldername", // optional
+    filename: "filename", // optional @default: video-title
+    quality: "best", // or lowest
   })
-  .catch((err) => {
-    console.error("An error occurred:", err.message);
-  });
-```
+    .then(() => {
+      console.log("Audio downloaded successfully! 🎵🎉");
+    })
+    .catch((err) => {
+      console.error("Oh no, an error occurred:", err.message);
+    });
+  ```
 
-Make sure to replace **VIDEO_ID** with the actual ID of the YouTube video you want to download audio from. You can specify the output folder where the audio file will be saved, an optional filename for the downloaded audio file, and the desired audio quality (e.g., "best" or "low").
+  Ready to immerse yourself in a world of audio wonders? Just replace **VIDEO_ID** with the actual ID of the YouTube video you desire to download audio from. You can customize the output folder where the audio file will be saved, specify an optional filename for the downloaded audio file, and even choose your preferred audio quality (e.g., "best" or "low").
 
-### Download Video with Audio 🎥🔊
+  ### Download Video with Audio 🎥🔊
 
-To download a video with its audio from a YouTube URL, you can use the `dlVideoWithAudio` function provided by the module. Here's an example of how to use it:
+  Craving the complete audiovisual experience? YouTube Downloader Executor has got you covered! Get ready to download those captivating videos with their accompanying audio effortlessly. Behold the mighty `dlVideoWithAudio` function provided by our module:
 
-```javascript
-const { dlVideoWithAudio } = require("ytdl-exec");
+  ```javascript
+  const { dlVideoWithAudio } = require("ytdl-exec");
+  // or
+  import { dlVideoWithAudio } from "ytdl-exec";
 
-const url = "https://www.youtube.com/watch?v=VIDEO_ID";
-const filename = "optional-filename";
-const foldername = "downloads";
-const resolution = 720;
-
-// Using async/await
-try {
-  await dlVideoWithAudio({ url, foldername, filename, resolution });
-  console.log("Video downloaded successfully! 🎥🎉");
-} catch (err) {
-  console.error("An error occurred:", err.message);
-}
-
-// Using Promises
-dlVideoWithAudio({ url, foldername, filename, resolution })
-  .then(() => {
+  // Using async/await
+  try {
+    await dlVideoWithAudio({
+      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      foldername: "downloads", // optional
+      filename: "filename", // optional @default: video-title
+      resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+    });
     console.log("Video downloaded successfully! 🎥🎉");
+  } catch (err) {
+    console.error("Oh no, an error occurred:", err.message);
+  }
+
+  // Using Promises
+  dlVideoWithAudio({
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    foldername: "downloads", // optional
+    filename: "filename", // optional @default: video-title
+    resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
   })
-  .catch((err) => {
-    console.error("An error occurred:", err.message);
-  });
-```
+    .then(() => {
+      console.log("Video downloaded successfully! 🎥🎉");
+    })
+    .catch((err) => {
+      console.error("Oh no, an error occurred:", err.message);
+    });
+  ```
 
-Make sure to replace **VIDEO_ID** with the actual ID of the YouTube video you want to download. You can specify the output folder where the video file will be saved, an optional filename for the downloaded video file, and the desired resolution (e.g., 720).
+  Ready to dive into a world of stunning videos? Simply replace **VIDEO_ID** with the actual ID of the YouTube video you wish to download. You can customize the output folder where the video file will be saved, specify an optional filename for the downloaded video file, and even choose your desired resolution (e.g., 720).
 
-### Optional Parameters
+  ### Optional Parameters
 
-Both
+  Both `dlAudio` and `dlVideoWithAudio` functions accept optional parameters:
 
-`dlAudio` and `dlVideoWithAudio` functions accept optional parameters:
+  - **filename** (optional): You can provide an optional filename for the downloaded file. If not specified, the video or audio title will be used as the filename.
+  - **foldername** (optional): You can provide an optional folder name for the downloaded file. If not specified, a folder named 'ytdl-exec' will be created and used.
 
-- **filename** (optional): You can provide an optional filename for the downloaded file. If not specified, the video or audio title will be used as the filename.
+  Both functions can be used with `await` when calling them within an `async` function or with `.then()` and `.catch()` when using Promises to handle the asynchronous nature of the download process.
 
-Both functions can be used with `await` when calling them within an `async` function, or with `.then()` and `.catch()` when using Promises to handle the asynchronous nature of the download process.
+  ## Features
 
-## Features
+  ✨ Fetches video and audio details from a YouTube video using the `youtube-dl-exec` library.
+  ✨ Allows you to choose the desired video format and resolution, as well as audio quality.
+  ✨ Downloads the video or audio file using `fluent-ffmpeg` and saves it to the specified output folder.
+  ✨ Provides logging functionality using the `winston` library.
 
-✨ Fetches video and audio details from a YouTube video using the `youtube-dl-exec` library.
-✨ Allows you to choose the desired video format and resolution, as well as audio quality.
-✨ Downloads the video or audio file using `fluent-ffmpeg` and saves it to the specified output folder.
-✨ Provides logging functionality using the `winston` library.
+  ## Logging
 
-## Logging
+  The project uses the `winston` library for logging. It creates a logger with different log levels (`info`, `debug`, `error`) and formats the log messages with colors and timestamps. The logs are displayed in the console.
 
-The project uses the `winston` library for logging. It creates a logger with different log levels (`info`, `debug`, `error`) and formats the log messages with colors and timestamps. The logs are displayed in the console.
+  ### Customization
 
-### Customization
+  You can customize the logging behavior by modifying the `logger` object in the code. You can change the log levels, formatting, and transports (e.g., writing logs to a file instead of the console) according to your needs.
 
-You can customize the logging behavior by modifying the `logger` object in the code. You can change the log levels, formatting, and transports (e.g., writing logs to a file instead of the console) according to your needs.
+  ## License
 
-## License
-
-This project is licensed under the MIT license. Feel free to use, modify, and distribute it as you see fit. See the [LICENSE](LICENSE) file for more information.
+  This project is licensed under the MIT license. Feel free to use, modify, and distribute it as you see fit. See the [LICENSE](LICENSE) file for more information.
