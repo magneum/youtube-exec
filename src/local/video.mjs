@@ -1,23 +1,26 @@
-// Implement the same changes in this video.mjs code snippet
-
 import progLogger from "progress-estimator";
 import logger from "../../utils/logger.mjs";
 import youtubedl from "youtube-dl-exec";
 import ffmpeg from "fluent-ffmpeg";
 import urlRegex from "url-regex";
 import readline from "readline";
-const plogger = progLogger();
 import chalk from "chalk";
 import path from "path";
 import fs from "fs";
+
+const plogger = progLogger();
 
 const log = (message) => {
   logger.info(message);
 };
 
 const createFolderIfNotExists = (foldername) => {
+  if (!foldername) {
+    foldername = "ytdl-exec";
+  }
   if (!fs.existsSync(foldername)) {
     fs.mkdirSync(foldername);
+    logger.info(`📂 Created folder: ${foldername}`);
   }
 };
 
@@ -65,10 +68,6 @@ const downloadVideoAndAudioFiles = async (
   outputFile,
   videoFormat
 ) => {
-  outputFile = path.join(
-    outputFile,
-    `[${videoFormat.height}]${videoFormat.format_id}.mp4`
-  );
   return new Promise((resolve, reject) => {
     const ffmpegCommand = ffmpeg()
       .input(videoUrl)
@@ -103,7 +102,7 @@ const downloadVideoAndAudioFiles = async (
         );
         reject(err);
       })
-      .saveToFile(outputFile);
+      .save(outputFile);
     ffmpegCommand.run();
   });
 };
@@ -207,7 +206,7 @@ const displayVideoDetails = (reqVideo, videoTitle, url) => {
   return url;
 };
 
-const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
+const dlVideoWithAudio = async ({ url, foldername, filename, resolution }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!validateUrl(url)) {
@@ -222,7 +221,7 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
         url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
         url = displayVideoDetails(reqVideo, videoTitle, url);
         if (!foldername) {
-          foldername = "downloads";
+          foldername = "ytdl-exec";
         }
         createFolderIfNotExists(foldername);
         const outputFilename = filename
@@ -247,3 +246,48 @@ const dlVideoWithAudio = ({ url, foldername, filename, resolution }) => {
 };
 
 export default dlVideoWithAudio;
+
+const testDownloadVideo = async () => {
+  try {
+    const testCases = [
+      {
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        foldername: "downloads",
+        filename: "my-video",
+        resolution: 144,
+        description: "with all parameters provided",
+      },
+      {
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        filename: "my-video",
+        resolution: 144,
+        description: "without foldername",
+      },
+      {
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        foldername: "downloads",
+        resolution: 144,
+        description: "without filename",
+      },
+      {
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        resolution: 144,
+        description: "without foldername and filename",
+      },
+    ];
+
+    logger.info("🚀 Starting video download...");
+    for (const testCase of testCases) {
+      const { url, foldername, filename, resolution, description } = testCase;
+      logger.info(`🐞 Running test: ${description}`);
+      await dlVideoWithAudio({ url, foldername, filename, resolution });
+      logger.info(`💡 Test: ${description} - Passed\n`);
+    }
+    logger.info("✅ All video download tests completed successfully!");
+  } catch (error) {
+    console.error("❌ Video download tests failed:", error.message);
+  }
+};
+
+// Run the test
+testDownloadVideo();
