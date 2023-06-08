@@ -3,9 +3,9 @@ const { expect } = require("chai");
 const { streamAudio } = require("../app/cjs/index.js");
 
 describe("streamAudio", async function () {
-  this.timeout(40000);
+  this.timeout(80000);
   it("should return the expected audio details and video title", async function () {
-    this.timeout(40000);
+    this.timeout(80000);
     const req = {
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       quality: "best",
@@ -27,7 +27,7 @@ describe("streamAudio", async function () {
   });
 
   it("should handle invalid URL", async function () {
-    this.timeout(40000);
+    this.timeout(80000);
     const req = {
       url: "https://www.youtube.com/watch?v=invalid-url",
       quality: "best",
@@ -44,7 +44,7 @@ describe("streamAudio", async function () {
   });
 
   it("should handle error fetching audio details", async function () {
-    this.timeout(40000);
+    this.timeout(80000);
     const req = {
       url: "https://www.youtube.com/watch?v=your-video-id",
       quality: "best",
