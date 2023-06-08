@@ -1,6 +1,6 @@
 const sinon = require("sinon");
 const { expect } = require("chai");
-const streamAudio = require("../app/cjs/index.js");
+const { streamAudio } = require("../app/cjs/index.js");
 
 describe("streamAudio", async function () {
   this.timeout(40000);
