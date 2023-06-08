@@ -2,11 +2,11 @@
       <img src="/images/logo.png" width="200" height="200">
   </div>
 
-  # YouTube Downloader Executor
+  # Ytdl-Exec
 
-  🎥📥 **YouTube Downloader Executor** - Unleash the Power of YouTube Downloads!
+  🎥📥 **Ytdl-Exec** - Unleash the Power of YouTube Downloads!
 
-  Looking to grab your favorite audio and video files from YouTube? Look no further! With the mighty YouTube Downloader Executor, you can effortlessly seize those captivating audio and video gems. This versatile tool harnesses the incredible `youtube-dl-exec` library to extract all the juicy details, while the unstoppable `fluent-ffmpeg` library takes care of downloading the files. Say goodbye to limitations and hello to a world of endless possibilities!
+  Looking to grab your favorite audio and video files from YouTube? Look no further! With the mighty Ytdl-Exec, you can effortlessly seize those captivating audio and video gems. This versatile tool harnesses the incredible `youtube-dl-exec` library to extract all the juicy details, while the unstoppable `fluent-ffmpeg` library takes care of downloading the files. Say goodbye to limitations and hello to a world of endless possibilities!
 
   |                |                                                                                               |
   | -------------- | --------------------------------------------------------------------------------------------- |
@@ -15,7 +15,7 @@
 
   ## Installation
 
-  To embark on your YouTube downloading adventure with YouTube Downloader Executor, you'll need to have Node.js installed on your system. Fear not! The installation process is as easy as a few simple commands:
+  To embark on your YouTube downloading adventure with Ytdl-Exec, you'll need to have Node.js installed on your system. Fear not! The installation process is as easy as a few simple commands:
 
   - Using yarn:
 
@@ -72,7 +72,7 @@
 
   ### Download Video with Audio 🎥🔊
 
-  Craving the complete audiovisual experience? YouTube Downloader Executor has got you covered! Get ready to download those captivating videos with their accompanying audio effortlessly. Behold the mighty `dlVideoWithAudio` function provided by our module:
+  Craving the complete audiovisual experience? Ytdl-Exec has got you covered! Get ready to download those captivating videos with their accompanying audio effortlessly. Behold the mighty `dlVideoWithAudio` function provided by our module:
 
   ```javascript
   const { dlVideoWithAudio } = require("ytdl-exec");
