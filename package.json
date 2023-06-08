@@ -6,7 +6,7 @@
   "module": "./app/mjs/index.mjs",
   "types": "./app/types/index.d.ts",
   "scripts": {
-    "clean": "rm -rf node_modules yarn.lock pcakage.json",
+    "clean": "rm -rf node_modules yarn.lock pcakage.json pnpm-lock.yaml",
     "test": "npx mocha test/audio.test.js && npx mocha test/video.test.js && node test/web.test.js",
     "prestart": "python --version 2>&1 >/dev/null || echo 'Python is not installed. Please install Python to run this code.'"
   },
@@ -35,6 +35,7 @@
     "url": "https://github.com/magneum/ytdl-exec/issues"
   },
   "dependencies": {
+    "@types/ws": "^8.5.4",
     "axios": "^1.3.4",
     "chalk": "^4.1.2",
     "cli-clear": "^1.0.4",
@@ -51,6 +52,7 @@
     "url-regex": "^5.0.0",
     "uuid": "^9.0.0",
     "winston": "^3.9.0",
+    "ws": "^8.13.0",
     "youtube-dl-exec": "^2.4.4",
     "ytdl-exec": "^0.0.7"
   },
