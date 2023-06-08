@@ -1,100 +1,118 @@
-const sinon = require("sinon");
-const { expect } = require("chai");
+const chalk = require("chalk");
+const express = require("express");
 const { streamAudio } = require("../app/cjs/index.js");
 
-describe("streamAudio", async function () {
-  this.timeout(80000);
-  it("should return the expected audio details and video title", async function () {
-    this.timeout(80000);
-    const req = {
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      quality: "best",
-    };
-    const res = {
-      setHeader: sinon.stub(),
-    };
-    const result = await streamAudio(req, res);
-    expect(res.setHeader.calledWith("Content-Type", "audio/mpeg")).to.be.true;
-    expect(
-      res.setHeader.calledWith(
-        "Content-Disposition",
-        'attachment; filename="Video Title.mp3"'
-      )
-    ).to.be.true;
-    expect(result.reqAudio).to.be.an("object");
-    expect(result.videoTitle).to.be.a("string");
-    expect(result.stream).to.be.an("object");
-  });
+const app = express();
+const port = 8080;
 
-  it("should handle invalid URL", async function () {
-    this.timeout(80000);
-    const req = {
-      url: "https://www.youtube.com/watch?v=invalid-url",
-      quality: "best",
-    };
-    const res = {
-      setHeader: sinon.stub(),
-      status: sinon.stub(),
-      end: sinon.stub(),
-    };
-    await streamAudio(req, res);
-    expect(res.setHeader.called).to.be.false;
-    expect(res.status.calledWith(500)).to.be.true;
-    expect(res.end.called).to.be.true;
-  });
-
-  it("should handle error fetching audio details", async function () {
-    this.timeout(80000);
-    const req = {
-      url: "https://www.youtube.com/watch?v=your-video-id",
-      quality: "best",
-    };
-    const res = {
-      setHeader: sinon.stub(),
-      status: sinon.stub(),
-      end: sinon.stub(),
-    };
-    sinon
-      .stub(streamAudio, "fetchAudioDetails")
-      .throws(new Error("Fetch error"));
-    await streamAudio(req, res);
-    expect(res.setHeader.called).to.be.false;
-    expect(res.status.calledWith(500)).to.be.true;
-    expect(res.end.called).to.be.true;
-    streamAudio.fetchAudioDetails.restore();
-  });
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send("Internal Server Error");
 });
 
-// import express from "express";
+app.get("/", async (req, res) => {
+  const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  const quality = req.query.quality || "best";
+  try {
+    const { reqAudio, videoTitle, stream } = await streamAudio({
+      url,
+      quality,
+      res,
+    });
+    stream.on("start", () => {
+      console.log("📥 Audio streaming started...");
+    });
+    stream.on("end", () => {
+      console.log(chalk.bold(chalk.green("✅ Audio streaming finished!")));
+    });
+    stream.on("error", (err) => {
+      console.log(
+        chalk.bold(chalk.red(`❌ Error streaming audio: ${err.message}`))
+      );
+      res.status(500).end();
+    });
+  } catch (err) {
+    console.log(chalk.red(`❌ An error occurred: ${err.message}`));
+    res.status(500).end();
+  }
+});
+
+app.listen(port, () => {
+  console.log("http://localhost:8080");
+});
+
+// const express = require("express");
+// const { streamAudio } = require("../app/cjs/index.js");
+// const http = require("http");
+// const socketIO = require("socket.io");
+
 // const app = express();
+// const server = http.createServer(app);
+// const io = socketIO(server);
+
 // const port = 8080;
-// app.get("/", async (req, res) => {
-// const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-// const quality = req.query.quality || "best";
-// try {
-// const { reqAudio, videoTitle, stream } = await streamAudio({
-// url,
-// quality,
-// res,
-// });
-// stream.on("start", () => {
-// logger.info("📥 Audio streaming started...");
-// });
-// stream.on("end", () => {
-// logger.info(chalk.bold(chalk.green("✅ Audio streaming finished!")));
-// });
-// stream.on("error", (err) => {
-// logger.info(
-// chalk.bold(chalk.red(`❌ Error streaming audio: ${err.message}`))
-// );
-// res.status(500).end();
-// });
-// } catch (err) {
-// logger.info(chalk.red(`❌ An error occurred: ${err.message}`));
-// res.status(500).end();
-// }
+
+// app.use((err, req, res, next) => {
+//   console.error(err);
+//   res.status(500).send("Internal Server Error");
 // });
 
-// app.listen(port, () => {
-// console.log("http://localhost:8080");
+// app.get("/", async (req, res) => {
+//   const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+//   const quality = req.query.quality || "best";
+//   await streamAudio({
+//     url,
+//     quality,
+//     res,
+//   }).theen(async (reqAudio, videoTitle, stream) => {
+//     try {
+//       stream.on("start", () => {
+//         io.emit(
+//           "streamStart",
+//           `📥 Audio streaming started - Video Title: ${videoTitle}`
+//         );
+//         res.send(`📥 Audio streaming started - Video Title: ${videoTitle}`);
+//       });
+//       stream.on("end", () => {
+//         io.emit(
+//           "streamEnd",
+//           `✅ Audio streaming finished - Video Title: ${videoTitle}`
+//         );
+//         res.send(`✅ Audio streaming finished - Video Title: ${videoTitle}`);
+//       });
+//       stream.on("error", (err) => {
+//         io.emit(
+//           "streamError",
+//           `❌ Error streaming audio - Video Title: ${videoTitle}, Error: ${err.message}`
+//         );
+//         res
+//           .status(500)
+//           .send(
+//             `❌ Error streaming audio - Video Title: ${videoTitle}, Error: ${err.message}`
+//           );
+//       });
+//     } catch (err) {
+//       io.emit(
+//         "errorOccurred",
+//         `❌ An error occurred - Video Title: ${videoTitle}, Error: ${err.message}`
+//       );
+//       res
+//         .status(500)
+//         .send(
+//           `❌ An error occurred - Video Title: ${videoTitle}, Error: ${err.message}`
+//         );
+//     }
+//   });
+// });
+
+// io.on("connection", (socket) => {
+//   console.log("A client connected");
+
+//   socket.on("disconnect", () => {
+//     console.log("A client disconnected");
+//   });
+// });
+
+// server.listen(port, () => {
+//   console.log("http://localhost:8080");
 // });

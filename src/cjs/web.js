@@ -6,16 +6,11 @@ const urlRegex = require("url-regex");
 const chalk = require("chalk");
 
 const plogger = progLogger();
+
 const fetchAudioDetails = async ({ url, quality }) => {
   logger.info("🔍 Fetching audio details...");
   try {
-    const promise = youtubedl(url, {
-      noWarnings: true,
-      dumpSingleJson: true,
-      preferFreeFormats: true,
-      noCheckCertificates: true,
-      addHeader: ["referer:youtube.com", "user-agent:googlebot"],
-    });
+    const promise = youtubedl(url, { dumpSingleJson: true });
     const result = await plogger(promise, "⏳ Obtaining...");
     const videoTitle = result.title;
     const reqAudio = findReqAudioFormat(result.formats, quality);
@@ -68,58 +63,71 @@ const validateUrl = (url) => {
   return regex.test(url);
 };
 
-const streamAudio = async ({ url, quality, res }) => {
-  if (!validateUrl(url)) {
-    logger.info(chalk.red("❌ Invalid URL format."));
-    return;
-  }
-  try {
-    const { reqAudio, videoTitle } = await fetchAudioDetails({
-      url,
-      quality,
-    });
-    if (!reqAudio) {
-      logger.info(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
+const streamAudio = ({ url, quality, res }) => {
+  return new Promise(async (resolve, reject) => {
+    if (!validateUrl(url)) {
+      logger.info(chalk.red("❌ Invalid URL format."));
+      reject(new Error("Invalid URL format."));
       return;
     }
-    logger.info(chalk.bold(chalk.cyanBright(`🎥 Video Title: ${videoTitle}`)));
-    Object.entries(reqAudio).forEach(([key, value]) => {
-      logger.info(
-        chalk.bold(
-          chalk.yellow(
-            `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
-          )
-        )
-      );
-    });
-    res.setHeader("Content-Type", "audio/mpeg");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${videoTitle}.mp3"`
-    );
-    const ffmpegCommand = ffmpeg(reqAudio.url)
-      .audioBitrate(320)
-      .format("mp3")
-      .outputOptions("-f mp3");
-    ffmpegCommand.on("start", () => {
-      logger.info("📥 Audio streaming started...");
-    });
-    ffmpegCommand.on("end", () => {
-      logger.info(chalk.bold(chalk.green("✅ Audio streaming finished!")));
-    });
-    ffmpegCommand.on("error", (err) => {
-      logger.info(
-        chalk.bold(chalk.red(`❌ Error streaming audio: ${err.message}`))
-      );
-      res.status(500).end();
-    });
-    ffmpegCommand.pipe(res);
 
-    return { reqAudio, videoTitle, stream: ffmpegCommand };
-  } catch (err) {
-    logger.info(chalk.red(`❌ An error occurred: ${err.message}`));
-    res.status(500).end();
-  }
+    try {
+      const { reqAudio, videoTitle } = await fetchAudioDetails({
+        url,
+        quality,
+      });
+      if (!reqAudio) {
+        logger.info(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
+        reject(new Error("No audio details found."));
+        return;
+      }
+
+      logger.info(
+        chalk.bold(chalk.cyanBright(`🎥 Video Title: ${videoTitle}`))
+      );
+      Object.entries(reqAudio).forEach(([key, value]) => {
+        logger.info(
+          chalk.bold(
+            chalk.yellow(
+              `${key}: ${chalk.bold(chalk.italic(chalk.white(value)))}`
+            )
+          )
+        );
+      });
+
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${videoTitle}.mp3"`
+      );
+
+      const ffmpegCommand = ffmpeg(reqAudio.url)
+        .audioBitrate(320)
+        .format("mp3")
+        .outputOptions("-f mp3");
+
+      ffmpegCommand.on("start", () => {
+        logger.info("📥 Audio streaming started...");
+      });
+
+      ffmpegCommand.on("end", () => {
+        logger.info(chalk.bold(chalk.green("✅ Audio streaming finished!")));
+        resolve({ reqAudio, videoTitle, stream: ffmpegCommand });
+      });
+
+      ffmpegCommand.on("error", (err) => {
+        logger.info(
+          chalk.bold(chalk.red(`❌ Error streaming audio: ${err.message}`))
+        );
+        reject(err);
+      });
+
+      ffmpegCommand.pipe(res);
+    } catch (err) {
+      logger.info(chalk.red(`❌ An error occurred: ${err.message}`));
+      reject(err);
+    }
+  });
 };
 
 module.exports = streamAudio;
