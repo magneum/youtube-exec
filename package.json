@@ -1,6 +1,6 @@
 {
   "name": "ytdl-exec",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Ytdl-Exec is a versatile tool for downloading audio files from YouTube videos. It utilizes the youtube-dl-exec library to extract audio details and the fluent-ffmpeg library to download the audio files in MP3 format. With ytdl-exec, you can easily fetch audio details, choose the desired audio quality, and download the audio file to your specified location.",
   "main": "./app/cjs/index.js",
   "module": "./app/mjs/index.mjs",
@@ -54,7 +54,7 @@
     "winston": "^3.9.0",
     "ws": "^8.13.0",
     "youtube-dl-exec": "^2.4.4",
-    "ytdl-exec": "^0.0.7"
+    "ytdl-exec": "^0.0.8"
   },
   "devDependencies": {
     "chai": "^4.3.7",
