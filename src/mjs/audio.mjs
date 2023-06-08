@@ -23,7 +23,13 @@ const createFolderIfNotExists = (foldername) => {
 const fetchAudioDetails = async ({ url, quality }) => {
   logger.info("🔍 Fetching audio details...");
   try {
-    const promise = youtubedl(url, { dumpSingleJson: true });
+    const promise = youtubedl(url, {
+      dumpSingleJson: true,
+      noCheckCertificates: true,
+      noWarnings: true,
+      preferFreeFormats: true,
+      addHeader: ["referer:youtube.com", "user-agent:googlebot"],
+    });
     const result = await plogger(promise, "⏳ Obtaining...");
     const videoTitle = result.title;
     const reqAudio = findReqAudioFormat(result.formats, quality);
