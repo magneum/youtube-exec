@@ -30,7 +30,6 @@ describe("dlVideoWithAudio", async function () {
   });
 
   afterEach(() => {
-    s;
     sinon.restore();
   });
 
