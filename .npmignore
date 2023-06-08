@@ -133,3 +133,9 @@ dist
 # downloads
 *.mp3
 *.mp4
+
+
+# installer
+yarn.lock 
+pnpm-lock.yaml
+package-lock.json
