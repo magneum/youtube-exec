@@ -21,8 +21,8 @@ To embark on your YouTube downloading adventure with Ytdl-Exec, you'll need to h
 
 ```bash
 $ yarn add ytdl-exec (fav)
-$ npm install ytdl-exec (-_-)
 $ pnpm install ytdl-exec (fav)
+$ npm install ytdl-exec (-_-)
 ```
 
 ## Usage
