@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rm -rf node_modules yarn.lock pcakage.json pnpm-lock.yaml",
     "test": "npx mocha test/audio.test.js && npx mocha test/video.test.js && node test/web.test.js",
+    "local": "npx mocha client/audio.test.js && npx mocha client/video.test.js && node client/web.test.js",
     "prestart": "python --version 2>&1 >/dev/null || echo 'Python is not installed. Please install Python to run this code.'"
   },
   "keywords": [

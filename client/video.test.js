@@ -20,9 +20,9 @@
 // =====================================( ytdl-exec by magneum )=============================================
 const sinon = require("sinon");
 const assert = require("chai").assert;
-const { dlAudio } = require("ytdl-exec");
+const { dlVideoWithAudio } = require("ytdl-exec");
 
-describe("dlAudio", async function () {
+describe("dlVideoWithAudio", async function () {
   this.timeout(80000);
   beforeEach(() => {
     sinon.stub(console, "info");
@@ -33,43 +33,43 @@ describe("dlAudio", async function () {
     sinon.restore();
   });
 
-  it("should download audio with all parameters provided", async function () {
+  it("should download video with audio with all parameters provided", async function () {
     this.timeout(80000);
-    const quality = "lowest";
-    const filename = "cutom-audio";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const foldername = "downloads";
-    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const params = { url, foldername, quality, filename };
-    await dlAudio(params);
+    const filename = "cutom-video";
+    const resolution = 144;
+    const params = { url, foldername, filename, resolution };
+    await dlVideoWithAudio(params);
     assert.isTrue(true);
   });
 
-  it("should download audio without foldername", async function () {
+  it("should download video with audio without foldername", async function () {
     this.timeout(80000);
-    const quality = "lowest";
-    const filename = "cutom-audio";
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const params = { url, quality, filename };
-    await dlAudio(params);
+    const filename = "cutom-video";
+    const resolution = 144;
+    const params = { url, filename, resolution };
+    await dlVideoWithAudio(params);
     assert.isTrue(true);
   });
 
-  it("should download audio without filename", async function () {
+  it("should download video with audio without filename", async function () {
     this.timeout(80000);
-    const quality = "lowest";
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const foldername = "downloads";
-    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const params = { url, foldername, quality };
-    await dlAudio(params);
+    const resolution = 144;
+    const params = { url, foldername, resolution };
+    await dlVideoWithAudio(params);
     assert.isTrue(true);
   });
 
-  it("should download audio without foldername and filename", async function () {
+  it("should download video with audio without foldername and filename", async function () {
     this.timeout(80000);
-    const quality = "lowest";
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const params = { url, quality };
-    await dlAudio(params);
+    const resolution = 144;
+    const params = { url, resolution };
+    await dlVideoWithAudio(params);
     assert.isTrue(true);
   });
 });

@@ -20,7 +20,7 @@
 // =====================================( ytdl-exec by magneum )=============================================
 const sinon = require("sinon");
 const assert = require("chai").assert;
-const { dlAudio } = require("ytdl-exec");
+const { dlAudio } = require("../app/cjs/index.js");
 
 describe("dlAudio", async function () {
   this.timeout(80000);
