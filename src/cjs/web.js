@@ -1,9 +1,9 @@
-import progLogger from "progress-estimator";
-import logger from "../../utils/logger.mjs";
-import youtubedl from "youtube-dl-exec";
-import ffmpeg from "fluent-ffmpeg";
-import urlRegex from "url-regex";
-import chalk from "chalk";
+const progLogger = require("progress-estimator");
+const youtubedl = require("youtube-dl-exec");
+const logger = require("../../utils/logger.js");
+const ffmpeg = require("fluent-ffmpeg");
+const urlRegex = require("url-regex");
+const chalk = require("chalk");
 
 const plogger = progLogger();
 const fetchAudioDetails = async ({ url, quality }) => {
@@ -121,4 +121,5 @@ const streamAudio = async ({ url, quality, res }) => {
     res.status(500).end();
   }
 };
-export default streamAudio;
+
+module.exports = streamAudio;

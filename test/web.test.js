@@ -1,6 +1,6 @@
-import sinon from "sinon";
-import { expect } from "chai";
-import streamAudio from "../src/mjs/web.mjs";
+const sinon = require("sinon");
+const { expect } = require("chai");
+const streamAudio = require("../app/cjs/index.js");
 
 describe("streamAudio", async function () {
   this.timeout(40000);
@@ -64,3 +64,37 @@ describe("streamAudio", async function () {
     streamAudio.fetchAudioDetails.restore();
   });
 });
+
+// import express from "express";
+// const app = express();
+// const port = 8080;
+// app.get("/", async (req, res) => {
+// const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+// const quality = req.query.quality || "best";
+// try {
+// const { reqAudio, videoTitle, stream } = await streamAudio({
+// url,
+// quality,
+// res,
+// });
+// stream.on("start", () => {
+// logger.info("📥 Audio streaming started...");
+// });
+// stream.on("end", () => {
+// logger.info(chalk.bold(chalk.green("✅ Audio streaming finished!")));
+// });
+// stream.on("error", (err) => {
+// logger.info(
+// chalk.bold(chalk.red(`❌ Error streaming audio: ${err.message}`))
+// );
+// res.status(500).end();
+// });
+// } catch (err) {
+// logger.info(chalk.red(`❌ An error occurred: ${err.message}`));
+// res.status(500).end();
+// }
+// });
+
+// app.listen(port, () => {
+// console.log("http://localhost:8080");
+// });
