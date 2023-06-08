@@ -1,7 +1,6 @@
 {
   "name": "ytdl-exec",
   "version": "0.0.7",
-  "type": "module",
   "description": "YouTube Downloader Executor is a versatile tool for downloading audio files from YouTube videos. It utilizes the youtube-dl-exec library to extract audio details and the fluent-ffmpeg library to download the audio files in MP3 format. With ytdl-exec, you can easily fetch audio details, choose the desired audio quality, and download the audio file to your specified location.",
   "main": "./app/cjs/index.js",
   "module": "./app/mjs/index.mjs",
