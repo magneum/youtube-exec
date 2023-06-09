@@ -11,6 +11,9 @@
     "local": "npx mocha client/audio.test.js && npx mocha client/video.test.js && node client/web.test.js",
     "prestart": "python --version 2>&1 >/dev/null || echo 'Python is not installed. Please install Python to run this code.'"
   },
+  "bin": {
+    "ytdl-exec": "./app/cli.js"
+  },
   "keywords": [
     "youtube",
     "downloader",
@@ -61,7 +64,8 @@
     "chai": "^4.3.7",
     "jest": "^29.5.0",
     "mocha": "^10.2.0",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "yargs": "^17.7.2"
   },
   "engines": {
     "node": ">=16.0.0"
