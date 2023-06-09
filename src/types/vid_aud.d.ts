@@ -19,7 +19,17 @@
 // - Licensed under MIT for freedom to use, modify, and distribute.
 // - Enhance your YouTube downloading experience with this powerful tool.
 // =====================================( youtube-exec by magneum )=============================================
-/// <reference types="../../src/types/audio.d.ts" />
-/// <reference types="../../src/types/video.d.ts" />
-/// <reference types="../../src/types/web.d.ts" />
-/// <reference types="../../src/types/vid_aud.d.ts" />
+declare module "dlAudioVideo" {
+  type Resolution = 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+
+  interface DownloadOptions {
+    url: string;
+    folder?: string;
+    filename?: string;
+    resolution?: Resolution;
+  }
+
+  function dlAudioVideo(options: DownloadOptions): Promise<void>;
+
+  export = dlAudioVideo;
+}

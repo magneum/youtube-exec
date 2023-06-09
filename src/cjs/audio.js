@@ -1,5 +1,6 @@
-// =====================================( ytdl-exec by magneum )=============================================
-// - 🎥📥 Ytdl-Exec: Unleash the Power of YouTube Downloads!
+#!/usr/bin/env node
+// =====================================( youtube-exec by magneum )=============================================
+// - 🎥📥 YouTube-Exec: Unleash the Power of YouTube Downloads!
 // - Effortlessly seize captivating audio and video files from YouTube.
 // - Powered by `youtube-dl-exec` and `fluent-ffmpeg` libraries.
 // - Easy installation with Node.js using yarn or npm.
@@ -7,9 +8,9 @@
 // - Utilize the `dlAudio` function for mesmerizing audio downloads.
 // - Customize output folder, filename, and audio quality.
 // - 🎥🔊 **Download Video with Audio**:
-// - Use `dlVideoWithAudio` to download videos with accompanying audio.
+// - Use `dlAudioVideo` to download videos with accompanying audio.
 // - Customize output folder, filename, and resolution.
-// - Optional parameters for filename and foldername customization.
+// - Optional parameters for filename and folder customization.
 // - Features:
 // - Fetch video and audio details using `youtube-dl-exec`.
 // - Choose video format, resolution, and audio quality.
@@ -17,7 +18,7 @@
 // - Logging functionality with `winston` library.
 // - Licensed under MIT for freedom to use, modify, and distribute.
 // - Enhance your YouTube downloading experience with this powerful tool.
-// =====================================( ytdl-exec by magneum )=============================================
+// =====================================( youtube-exec by magneum )=============================================
 const progLogger = require("progress-estimator");
 const youtubedl = require("youtube-dl-exec");
 const logger = require("../../utils/logger.js");
@@ -29,11 +30,11 @@ const path = require("path");
 const fs = require("fs");
 
 const plogger = progLogger();
-const createFolderIfNotExists = (foldername) => {
-  if (!foldername) {
-    foldername = "ytdl-exec";
+const createFolderIfNotExists = (folder) => {
+  if (!folder) {
+    folder = "youtube-exec";
   }
-  const outputFolder = path.resolve(process.cwd(), foldername);
+  const outputFolder = path.resolve(process.cwd(), folder);
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder);
     logger.info(`📂 Created folder: ${outputFolder}`);
@@ -187,7 +188,7 @@ const displayAudioDetails = (reqAudio, videoTitle, url) => {
   return url;
 };
 
-const dlAudio = ({ url, foldername, quality, filename }) => {
+const dlAudio = ({ url, folder, quality, filename }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!validateUrl(url)) {
@@ -200,17 +201,17 @@ const dlAudio = ({ url, foldername, quality, filename }) => {
       });
       if (reqAudio) {
         url = displayAudioDetails(reqAudio, videoTitle, url);
-        if (!foldername) {
-          foldername = "ytdl-exec";
+        if (!folder) {
+          folder = "youtube-exec";
         }
-        createFolderIfNotExists(foldername);
+        createFolderIfNotExists(folder);
         let outputFilename;
         if (filename) {
           outputFilename = `${filename}`;
         } else {
           outputFilename = `[${quality}]${videoTitle}`;
         }
-        await downloadAudioFile(url, foldername, quality, outputFilename);
+        await downloadAudioFile(url, folder, quality, outputFilename);
       } else {
         logger.info(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
       }

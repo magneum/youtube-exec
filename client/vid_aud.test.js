@@ -21,9 +21,9 @@
 // =====================================( youtube-exec by magneum )=============================================
 const sinon = require("sinon");
 const assert = require("chai").assert;
-const { dlVideo } = require("../app/cjs/index.js");
+const { dlAudioVideo } = require("youtube-exec");
 
-describe("dlVideo", async function () {
+describe("dlAudioVideo", async function () {
   this.timeout(80000);
   beforeEach(() => {
     sinon.stub(console, "info");
@@ -41,7 +41,7 @@ describe("dlVideo", async function () {
     const filename = "cutom-video";
     const resolution = 144;
     const params = { url, folder, filename, resolution };
-    await dlVideo(params);
+    await dlAudioVideo(params);
     assert.isTrue(true);
   });
 
@@ -51,7 +51,7 @@ describe("dlVideo", async function () {
     const filename = "cutom-video";
     const resolution = 144;
     const params = { url, filename, resolution };
-    await dlVideo(params);
+    await dlAudioVideo(params);
     assert.isTrue(true);
   });
 
@@ -61,7 +61,7 @@ describe("dlVideo", async function () {
     const folder = "downloads";
     const resolution = 144;
     const params = { url, folder, resolution };
-    await dlVideo(params);
+    await dlAudioVideo(params);
     assert.isTrue(true);
   });
 
@@ -70,7 +70,7 @@ describe("dlVideo", async function () {
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const resolution = 144;
     const params = { url, resolution };
-    await dlVideo(params);
+    await dlAudioVideo(params);
     assert.isTrue(true);
   });
 });

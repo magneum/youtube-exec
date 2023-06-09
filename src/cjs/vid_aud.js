@@ -19,22 +19,21 @@
 // - Licensed under MIT for freedom to use, modify, and distribute.
 // - Enhance your YouTube downloading experience with this powerful tool.
 // =====================================( youtube-exec by magneum )=============================================
-import progLogger from "progress-estimator";
-import logger from "../../utils/logger.mjs";
-import youtubedl from "youtube-dl-exec";
-import ffmpeg from "fluent-ffmpeg";
-import urlRegex from "url-regex";
-import readline from "readline";
-import chalk from "chalk";
-import path from "path";
-import fs from "fs";
-
-const plogger = progLogger();
+const progLogger = require("progress-estimator");
+const youtubedl = require("youtube-dl-exec");
+const logger = require("../../utils/logger.js");
+const ffmpeg = require("fluent-ffmpeg");
+const urlRegex = require("url-regex");
+const readline = require("readline");
+const chalk = require("chalk");
+const path = require("path");
+const fs = require("fs");
 
 const log = (message) => {
   logger.info(message);
 };
 
+const plogger = progLogger();
 const createFolderIfNotExists = (folder) => {
   if (!folder) {
     folder = "youtube-exec";
@@ -46,8 +45,8 @@ const createFolderIfNotExists = (folder) => {
   }
 };
 
-const fetchVideoDetails = async ({ url, requestedResolution }) => {
-  log("🔍 Fetching video details...");
+const fetchVideoAndAudioDetails = async ({ url, requestedResolution }) => {
+  log("🔍 Fetching video and audio details...");
   try {
     const promise = youtubedl(url, {
       dumpSingleJson: true,
@@ -59,9 +58,12 @@ const fetchVideoDetails = async ({ url, requestedResolution }) => {
     const result = await plogger(promise, "⏳ Obtaining...");
     const videoTitle = result.title;
     const reqVideo = findReqVideoFormat(result.formats, requestedResolution);
-    return { reqVideo, videoTitle };
+    const reqAudio = findReqAudioFormat(result.formats);
+    return { reqVideo, reqAudio, videoTitle };
   } catch (err) {
-    throw new Error(`❌ Error fetching video details: ${err.message}`);
+    throw new Error(
+      `❌ Error fetching video and audio details: ${err.message}`
+    );
   }
 };
 
@@ -77,13 +79,30 @@ const findReqVideoFormat = (formats, requestedResolution) => {
   return reqVideo;
 };
 
-const downloadVideoFile = async (videoUrl, outputFile, videoFormat) => {
+const findReqAudioFormat = (formats) => {
+  let reqAudio = null;
+  const availableFormats = formats.filter(
+    (format) => format.ext === "m4a" && format.format_note !== "none"
+  );
+  const sortedFormats = availableFormats.sort((a, b) => b.abr - a.abr);
+  reqAudio = sortedFormats[0];
+  return reqAudio;
+};
+
+const downloadVideoAndAudioFiles = async (
+  videoUrl,
+  audioUrl,
+  outputFile,
+  videoFormat
+) => {
   return new Promise((resolve, reject) => {
     const ffmpegCommand = ffmpeg()
       .input(videoUrl)
+      .input(audioUrl)
       .videoCodec("copy")
+      .audioCodec("copy")
       .on("start", () => {
-        log("📥 Video download started...");
+        log("📥 Video and audio download started...");
       })
       .on("progress", (progress) => {
         readline.clearLine(process.stdout, 0);
@@ -93,7 +112,9 @@ const downloadVideoFile = async (videoUrl, outputFile, videoFormat) => {
       .on("end", () => {
         readline.clearLine(process.stdout, 0);
         readline.cursorTo(process.stdout, 0);
-        log(chalk.bold(chalk.green("✅ Video downloaded successfully!")));
+        log(
+          chalk.bold(chalk.green("✅ Video and audio downloaded successfully!"))
+        );
         resolve();
       })
       .on("error", (err) => {
@@ -101,7 +122,9 @@ const downloadVideoFile = async (videoUrl, outputFile, videoFormat) => {
         readline.cursorTo(process.stdout, 0);
         logger.error(
           chalk.bold(
-            chalk.red(`❌ Error downloading video file: ${err.message}`)
+            chalk.red(
+              `❌ Error downloading video and audio files: ${err.message}`
+            )
           )
         );
         reject(err);
@@ -114,6 +137,74 @@ const downloadVideoFile = async (videoUrl, outputFile, videoFormat) => {
 const validateUrl = (url) => {
   const regex = urlRegex({ strict: false });
   return regex.test(url);
+};
+
+const displayVideoAndAudioDetails = (reqVideo, reqAudio, videoTitle, url) => {
+  log(
+    chalk.bold(
+      chalk.bgCyanBright("🎥 Video Title:"),
+      chalk.bold(chalk.italic(chalk.white(videoTitle)))
+    )
+  );
+  if (reqVideo) {
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🎞️ Video Format: ${chalk.bold(
+            chalk.italic(chalk.white(reqVideo.format_id))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🖥️ Video Resolution: ${chalk.bold(
+            chalk.italic(chalk.white(reqVideo.height))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🔗 Video URL: ${chalk.bold(chalk.italic(chalk.white(reqVideo.url)))}`
+        )
+      )
+    );
+  } else {
+    log(chalk.bold(chalk.yellow("⚠️ No video details found.")));
+  }
+  if (reqAudio) {
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🔊 Audio Format: ${chalk.bold(
+            chalk.italic(chalk.white(reqAudio.format_id))
+          )}`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🔉 Audio Bitrate: ${chalk.bold(
+            chalk.italic(chalk.white(reqAudio.abr))
+          )}kbps`
+        )
+      )
+    );
+    log(
+      chalk.bold(
+        chalk.yellow(
+          `🔗 Audio URL: ${chalk.bold(chalk.italic(chalk.white(reqAudio.url)))}`
+        )
+      )
+    );
+  } else {
+    log(chalk.bold(chalk.yellow("⚠️ No audio details found.")));
+  }
+  return url;
 };
 
 const displayVideoDetails = (reqVideo, videoTitle, url) => {
@@ -142,17 +233,19 @@ const displayVideoDetails = (reqVideo, videoTitle, url) => {
   return url;
 };
 
-const dlVideo = async ({ url, folder, filename, resolution }) => {
+const dlAudioVideo = async ({ url, folder, filename, resolution }) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (!validateUrl(url)) {
         throw new Error("❌ Invalid URL format.");
       }
-      const { reqVideo, videoTitle } = await fetchVideoDetails({
-        url,
-        requestedResolution: resolution,
-      });
-      if (reqVideo) {
+      const { reqVideo, reqAudio, videoTitle } =
+        await fetchVideoAndAudioDetails({
+          url,
+          requestedResolution: resolution,
+        });
+      if (reqVideo && reqAudio) {
+        url = displayVideoAndAudioDetails(reqVideo, reqAudio, videoTitle, url);
         url = displayVideoDetails(reqVideo, videoTitle, url);
         if (!folder) {
           folder = "youtube-exec";
@@ -162,10 +255,16 @@ const dlVideo = async ({ url, folder, filename, resolution }) => {
           ? `${filename}.mp4`
           : `[${reqVideo.height}]${videoTitle}.mp4`;
         const outputPath = path.join(folder, outputFilename);
-        await downloadVideoFile(reqVideo.url, outputPath, reqVideo);
+        await downloadVideoAndAudioFiles(
+          reqVideo.url,
+          reqAudio.url,
+          outputPath,
+          reqVideo
+        );
+        log(chalk.bold(chalk.green("✅ Video downloaded successfully!")));
         resolve();
       } else {
-        throw new Error("⚠️ No video details found.");
+        throw new Error("⚠️ No video and audio details found.");
       }
     } catch (err) {
       reject(err);
@@ -173,4 +272,4 @@ const dlVideo = async ({ url, folder, filename, resolution }) => {
   });
 };
 
-export default dlVideo;
+module.exports = dlAudioVideo;
