@@ -1,6 +1,6 @@
 {
   "name": "youtube-exec",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "YouTube-Exec is a versatile tool for downloading audio files from YouTube videos. It utilizes the youtube-dl-exec library to extract audio details and the fluent-ffmpeg library to download the audio files in MP3 format. With youtube-exec, you can easily fetch audio details, choose the desired audio quality, and download the audio file to your specified location.",
   "main": "./app/cjs/index.js",
   "module": "./app/mjs/index.mjs",
@@ -60,7 +60,7 @@
     "ws": "^8.13.0",
     "yargs": "^17.7.2",
     "youtube-dl-exec": "^2.4.4",
-    "youtube-exec": "^1.0.2"
+    "youtube-exec": "^1.0.3"
   },
   "devDependencies": {
     "chai": "^4.3.7",

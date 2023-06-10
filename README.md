@@ -1,143 +1,162 @@
-<div align="center">
+ <h1 align="left"><b><b>📥🎥 YouTube-Exec 🎥📥</b></b></h1>
+ 
+### **⭐️ If you find YouTube-Exec useful, give it a star on [GitHub](https://github.com/magneum/youtube-exec)**
+
+<div align="left">
     <img src="https://i.postimg.cc/RhgzxBsM/logo.png" width="300" height="300">
 </div>
 
-# YouTube-Exec
+## **Unleash the Power of YouTube Downloads!** 💪🔥💻
 
-🎥📥 **YouTube-Exec** - _Unleash the Power of YouTube Downloads!_
-
-Looking to seize your favorite audio and video treasures from YouTube? Search no further! With the mighty YouTube-Exec, you can effortlessly capture those captivating audio and video gems. This versatile tool harnesses the incredible `youtube-dl-exec` library to extract all the juicy details, while the unstoppable `fluent-ffmpeg` library takes care of fetching the files. Bid farewell to limitations and greet a world of boundless possibilities!
+- Effortlessly download audio and video content from YouTube. 🎵🎬💽
+- Utilizes the powerful `youtube-dl-exec` library for extracting details. 📚🔍💡
+- Seamless fetching of files using the reliable `fluent-ffmpeg` library. 🔄⚙️🔊
+- Access and download your favorite audio and video treasures from YouTube. 🎉🔑💎
+- Say goodbye to limitations and enjoy a world of boundless possibilities. 🚫🌍🔓💫
 
 |                |                                                                                                     |
 | -------------- | --------------------------------------------------------------------------------------------------- |
 | License        | [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)                            |
 | Latest Version | [![npm](https://img.shields.io/npm/v/youtube-exec.svg)](https://www.npmjs.com/package/youtube-exec) |
 
-## Installation
+<h1 align="left"><b><b>Installation: 📥💻🔧</b></b></h1>
 
 To embark on your YouTube downloading adventure with YouTube-Exec, you'll need to have Node.js installed on your system. Fear not! The installation process is as easy as a few simple commands:
 
 - Using yarn or npm or pnpm
 
-```bash
-$ yarn add youtube-exec (fav)
-$ npm install youtube-exec (-_-)
+```
+$ yarn add youtube-exec
+$ npm install youtube-exec
+$ pnpm install youtube-exec
 ```
 
-## Usage (without CLI usage)
+<h1 align="left"><b>Usage (w/o CLI): 🖥️🔧📚</b></h1>
 
-### Download Audio 🔊 (without CLI usage)
+<details>
+<summary><b><i>🎵 Download Audio 🔊</i></b></summary>
 
-Dive into the world of mesmerizing audio downloads from YouTube by utilizing the powerful _dlAudio_ function provided by our amazing module. Here's a sneak peek at how to use it:
+To download audio from YouTube, you can use the `dlAudio` function provided by YouTube-Exec. Here's an example of how to use it:
 
 ```javascript
-const { dlAudio } = require("youtube-exec"); // or import { dlAudio } from "youtube-exec";
+const { dlAudio } = require("youtube-exec");
 
 // Using async/await
 try {
   await dlAudio({
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    folder: "downloads", // optional @default: "youtube-exec"
-    filename: "filename", // optional @default: video-title
-    quality: "best", // best or lowest
+    folder: "downloads", // optional, default: "youtube-exec"
+    filename: "filename", // optional, default: video title
+    quality: "best", // or "lowest"; default: "best"
   });
-  console.log("Audio downloaded successfully! 🎵🎉");
+  console.log("Audio downloaded successfully! 🔊🎉");
 } catch (err) {
-  console.error("Oh no, an error occurred:", err.message);
+  console.error("An error occurred:", err.message);
 }
 
 // Using Promises
 dlAudio({
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  folder: "downloads", // optional @default: "youtube-exec"
-  filename: "filename", // optional @default: video-title
-  quality: "best", // best or lowest
+  folder: "downloads", // optional, default: "youtube-exec"
+  filename: "filename", // optional, default: video title
+  quality: "best", // or "lowest"; default: "best"
 })
   .then(() => {
-    console.log("Audio downloaded successfully! 🎵🎉");
+    console.log("Audio downloaded successfully! 🔊🎉");
   })
   .catch((err) => {
-    console.error("Oh no, an error occurred:", err.message);
+    console.error("An error occurred:", err.message);
   });
 ```
 
-Ready to immerse yourself in a world of audio wonders? Just replace **VIDEO_ID** with the actual ID of the YouTube video you desire to download audio from. You can customize the output folder where the audio file will be saved, specify an optional filename for the downloaded audio file, and even choose your preferred audio quality (e.g., "best" or "low").
+</details>
 
-### Download Video with Audio 🎥🔊 (without CLI usage)
+<details>
+<summary><b><i>🎥🔊 Download Video with Audio 🎥🔊</i></b></summary>
 
-Craving the complete audiovisual experience? YouTube-Exec has got you covered! Get ready to download those captivating videos with their accompanying audio effortlessly. Behold the mighty _dlAudioVideo_ function provided by our module:
+To download videos with audio from YouTube, you can use the `dlAudioVideo` function provided by YouTube-Exec. Here's an example of how to use it:
 
 ```javascript
-const { dlAudioVideo } = require("youtube-exec"); // or import { dlAudio } from "youtube-exec";
+const { dlAudioVideo } = require("youtube-exec");
 
 // Using async/await
 try {
   await dlAudioVideo({
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    folder: "downloads", // optional @default: "youtube-exec"
-    filename: "filename", // optional @default: video-title
-    resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+    folder: "downloads", // optional, default: "youtube-exec"
+    filename: "filename", // optional, default: video title
+    resolution: 720, // 144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320; default: 480
   });
-  console.log("Video downloaded successfully! 🎥🎉");
+  console.log("Video downloaded successfully! 🎥🔊🎉");
 } catch (err) {
-  console.error("Oh no, an error occurred:", err.message);
+  console.error("An error occurred:", err.message);
 }
 
 // Using Promises
 dlAudioVideo({
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  folder: "downloads", // optional @default: "youtube-exec"
-  filename: "filename", // optional @default: video-title
-  resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+  folder: "downloads", // optional, default: "youtube-exec"
+  filename: "filename", // optional, default: video title
+  resolution: 720, // 144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320; default: 480
 })
   .then(() => {
-    console.log("Video downloaded successfully! 🎥🎉");
+    console.log("Video downloaded successfully! 🎥🔊🎉");
   })
   .catch((err) => {
-    console.error("Oh no, an error occurred:", err.message);
+    console.error("An error occurred:", err.message);
   });
 ```
 
-Ready to dive into a world of stunning videos? Simply replace **VIDEO_ID** with the actual ID of the YouTube video you wish to download. You can customize the output folder where the video file will be saved, specify an optional filename for the downloaded video file, and even choose your desired resolution (e.g., 720).
+</details>
 
-### Download Video without Audio 🎥🔊 (without CLI usage)
+<details>
+<summary><b><i>🎥 Download Video w/o Audio 🎥</i></b></summary>
 
-Craving the complete non-audio visual experience? YouTube-Exec has got you covered! Get ready to download those captivating videos with no audio. Behold the mighty _dlVideo_ function provided by our module:
+To download videos without audio from YouTube, you can use the `dlVideo` function provided by YouTube-Exec. Here's an example of how to use it:
 
 ```javascript
-const { dlVideo } = require("youtube-exec"); // or import { dlAudio } from "youtube-exec";
+const { dlVideo } = require("youtube-exec");
 
 // Using async/await
 try {
   await dlVideo({
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    folder: "downloads", // optional @default: "youtube-exec"
-    filename: "filename", // optional @default: video-title
-    resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+    folder: "downloads", // optional, default: "youtube-exec"
+    filename: "filename", // optional, default: video title
+    resolution: 720, // 144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320; default: 480
   });
   console.log("Video downloaded successfully! 🎥🎉");
 } catch (err) {
-  console.error("Oh no, an error occurred:", err.message);
+  console.error("An error occurred:", err.message);
 }
 
 // Using Promises
 dlVideo({
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  folder: "downloads", // optional @default: "youtube-exec"
-  filename: "filename", // optional @default: video-title
-  resolution: 720, // 144 | 240 | 360 | 480 | 720 | 1080 | 1440 | 2160 | 4320;
+  folder: "downloads", // optional, default: "youtube-exec"
+  filename: "filename", // optional, default: video title
+  resolution: 720, // 144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320; default: 480
 })
   .then(() => {
     console.log("Video downloaded successfully! 🎥🎉");
   })
   .catch((err) => {
-    console.error("Oh no, an error occurred:", err.message);
+    console.error("An error occurred:", err.message);
   });
 ```
 
-## Usage (with CLI usage)
+</details>
 
-### Download Audio 🔊 (with CLI usage)
+<h1 align="left"><b>Usage (with CLI): 🖥️💻🔧📚</h1>
+
+- Install the package globally:
+
+```bash
+$ npm install -g youtube-exec # sudo required for global install
+```
+
+<details>
+<summary><b><i>Download Audio 🔊 (with CLI usage)</i></b></summary>
 
 The "audio" command allows you to download audio from a YouTube video. It accepts the following options:
 
@@ -150,10 +169,13 @@ Here's an example of how to use the "audio" command:
 
 ```bash
 $ yarn global add youtube-exec # needs to be installed globally
-$ youtube-exec audio --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder "folder" --filename "filename" --quality "best"
+$ youtube-exec audio --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder "downloads" --filename "filename" --quality "best"
 ```
 
-### Download Video with Audio 🎥🔊 (with CLI usage)
+</details>
+
+<details>
+<summary><b><i>Download Video with Audio 🎥🔊 (with CLI usage)</i></b></summary>
 
 The "video-with-audio" command allows you to download video with audio from a YouTube video. It accepts the following options:
 
@@ -169,7 +191,10 @@ $ yarn global add youtube-exec # needs to be installed globally
 $ youtube-exec video-with-audio --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder "downloads" --filename "filename" --resolution 720
 ```
 
-### Download Video without Audio 🎥🔊 (with CLI usage)
+</details>
+
+<details>
+<summary><b><i>Download Video without Audio 🎥🔊 (with CLI usage)</i></b></summary>
 
 The "video" command allows you to download video without audio from a YouTube video. It accepts the following options:
 
@@ -178,23 +203,40 @@ The "video" command allows you to download video without audio from a YouTube vi
 - `filename`: The output filename (excluding extension) (optional, defaults to video title).
 - `resolution`: The video resolution (144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320) (optional, defaults to 480).
 
-Here's an example of how to use the "video-with-audio" command:
+Here's an example of how to use the "video" command:
 
 ```bash
 $ yarn global add youtube-exec # needs to be installed globally
-$ youtube-exec video-with-audio --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder "downloads" --filename "filename" --resolution 720
+$ youtube-exec video --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder "downloads" --filename "filename" --resolution 720
 ```
 
-## Features
+</details>
+
+<h1 align="left"><b>Features: 🎯🔥🌟</b></h1>
 
 - Extract video and audio details from YouTube effortlessly
-- Download audio files from YouTube videos
-- Download videos with audio from YouTube
-- Choose audio quality (best or lowest)
-- Choose video resolution (144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320)
-- Simple and intuitive API
-- CLI support for easy downloading
+- Download audio files from YouTube videos 🎵🔊
+- Download videos with audio from YouTube 🎥🔊
+- Choose audio quality (best or lowest) 🔊🥇
+- Choose video resolution (144, 240, 360, 480, 720, 1080, 1440, 2160, or 4320) 🎥📺
+- Simple and intuitive API 🚀
+- CLI support for easy downloading 💻⚡
 
-## License
+<h1 align="left"><b>License: 📜🔐</b></h1>
 
-YouTube-Exec is released under the [MIT License](LICENSE). Feel free to use, modify, and distribute it as you like.
+<p align="left">
+  YouTube-Exec is released under the <a href="LICENSE">MIT License</a>. Feel free to use, modify, and distribute it as you like.
+<b>The MIT License grants you the following permissions:</b>
+</p>
+
+- ✅ Permission is hereby granted, free of charge, to any person obtaining a copy of the YouTube-Exec software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+- 📋 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+- 🚀 The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+
+- 🔗 The Software may utilize third-party libraries, including but not limited to `youtube-dl-exec` and `fluent-ffmpeg`. Any such libraries are subject to their respective licenses and terms.
+
+- 🔒 Users of the Software acknowledge that the extraction and downloading of audio and video content from YouTube may be subject to legal restrictions and terms of use imposed by YouTube or other relevant entities. It is the responsibility of the users to comply with all applicable laws, regulations, and terms of use when using the Software.
+
+- 👥 The Software is intended for personal and non-commercial use only. Any commercial use of the Software requires explicit permission from the authors.
