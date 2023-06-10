@@ -225,7 +225,7 @@ $ youtube-exec video --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folde
 <h1 align="left"><b>License: 📜🔐</b></h1>
 
 <p align="left">
-  YouTube-Exec is released under the <a href="LICENSE">MIT License</a>. Feel free to use, modify, and distribute it as you like.
+  YouTube-Exec is released under the <a href="/LICENSE">MIT License</a>. Feel free to use, modify, and distribute it as you like.
 <b>The MIT License grants you the following permissions:</b>
 </p>
 
